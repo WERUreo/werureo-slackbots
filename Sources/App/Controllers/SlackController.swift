@@ -52,6 +52,8 @@ final class SlackController
 
     func realmstatus(request: Request) throws -> ResponseRepresentable
     {
+        self.drop.client = FoundationClient.self
+        
         guard let apiKey = self.drop.config["keys", "battlenet"]?.string else
         {
             return "No valid API key"
