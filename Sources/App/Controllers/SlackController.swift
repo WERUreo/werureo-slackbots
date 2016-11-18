@@ -56,12 +56,16 @@ final class SlackController
         {
             return "No valid API key"
         }
+        print("apiKey == \(apiKey)")
 
         let uri = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey=\(apiKey)"
+        print("uri == \(uri)")
+
         guard let text = request.data["text"]?.string else
         {
             return "Please enter the name of a World of Warcraft realm."
         }
+        print("request text == \(text)")
 
         let apiResponse = try self.drop.client.get(uri)
         guard let realms = apiResponse.json?["realms"]?.pathIndexableArray else
