@@ -52,37 +52,40 @@ final class SlackController
 
     func realmstatus(request: Request) throws -> ResponseRepresentable
     {
-        var uri = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey="
+//        var uri = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey="
 
         guard let apiKey = self.drop.config["keys", "battlenet"]?.string else { return "No valid API key" }
-        uri.append(apiKey)
 
-        guard let text = request.data["text"]?.string else { return "Please enter the name of a World of Warcraft realm." }
+        return apiKey
 
-        let apiResponse = try BasicClient.get(uri)
-
-        guard let realms = apiResponse.json?["realms"]?.pathIndexableArray else { return "No realms" }
-
-        guard let selectedRealm = realms.filter(
-        { (realm) -> Bool in
-            realm["name"]?.string?.lowercased() == text.lowercased()
-        }).first
-        else
-        {
-            return "\(text) is not a valid realm"
-        }
-
-        let realmName = selectedRealm["name"]?.string ?? "Invalid name"
-        let status = selectedRealm["status"]?.bool ?? false
-
-        let message = "\(realmName) \(status ? "is" : "is not") online."
-        let payload = try JSON(node:
-            [
-                "response_type" : "ephemeral",
-                "text" : message
-            ])
-
-        return payload
+//        uri.append(apiKey)
+//
+//        guard let text = request.data["text"]?.string else { return "Please enter the name of a World of Warcraft realm." }
+//
+//        let apiResponse = try BasicClient.get(uri)
+//
+//        guard let realms = apiResponse.json?["realms"]?.pathIndexableArray else { return "No realms" }
+//
+//        guard let selectedRealm = realms.filter(
+//        { (realm) -> Bool in
+//            realm["name"]?.string?.lowercased() == text.lowercased()
+//        }).first
+//        else
+//        {
+//            return "\(text) is not a valid realm"
+//        }
+//
+//        let realmName = selectedRealm["name"]?.string ?? "Invalid name"
+//        let status = selectedRealm["status"]?.bool ?? false
+//
+//        let message = "\(realmName) \(status ? "is" : "is not") online."
+//        let payload = try JSON(node:
+//            [
+//                "response_type" : "ephemeral",
+//                "text" : message
+//            ])
+//
+//        return payload
     }
 
     ////////////////////////////////////////////////////////////
