@@ -52,18 +52,15 @@ final class SlackController
 
     func realmstatus(request: Request) throws -> ResponseRepresentable
     {
-//        var uri = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey="
-
         guard let apiKey = self.drop.config["keys", "battlenet"]?.string else { return "No valid API key" }
 
-        return apiKey
+        let uri = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey=\(apiKey)"
 
-//        uri.append(apiKey)
-//
-//        guard let text = request.data["text"]?.string else { return "Please enter the name of a World of Warcraft realm." }
-//
-//        let apiResponse = try BasicClient.get(uri)
-//
+        guard let text = request.data["text"]?.string else { return "Please enter the name of a World of Warcraft realm." }
+
+        let apiResponse = try BasicClient.get(uri)
+        return apiResponse
+
 //        guard let realms = apiResponse.json?["realms"]?.pathIndexableArray else { return "No realms" }
 //
 //        guard let selectedRealm = realms.filter(
