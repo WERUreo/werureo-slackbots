@@ -54,17 +54,8 @@ final class SlackController
     {
         var uri = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey="
 
-        if drop.environment == .production
-        {
-            guard let apiKey = getEnvironmentVariable(name: "BATTLENET_API_KEY") else { return "No valid API key" }
-
-            uri.append(apiKey)
-        }
-        else
-        {
-            guard let apiKey = self.drop.config["keys", "battlenet"]?.string else { return "No valid API key" }
-            uri.append(apiKey)
-        }
+        guard let apiKey = self.drop.config["keys", "battlenet"]?.string else { return "No valid API key" }
+        uri.append(apiKey)
 
         guard let text = request.data["text"]?.string else { return "Please enter the name of a World of Warcraft realm." }
 
