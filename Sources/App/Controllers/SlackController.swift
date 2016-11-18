@@ -56,40 +56,32 @@ final class SlackController
 
         let uri = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey=\(apiKey)"
 
-//        guard let text = request.data["text"]?.string else { return "Please enter the name of a World of Warcraft realm." }
+        guard let text = request.data["text"]?.string else { return "Please enter the name of a World of Warcraft realm." }
 
-        do
+        let apiResponse = try self.drop.client.get(uri)
+
+        guard let realms = apiResponse.json?["realms"]?.pathIndexableArray else { return "No realms" }
+
+        guard let selectedRealm = realms.filter(
+        { (realm) -> Bool in
+            realm["name"]?.string?.lowercased() == text.lowercased()
+        }).first
+        else
         {
-            let apiResponse = try BasicClient.get(uri)
-            return apiResponse
-        }
-        catch
-        {
-            return "Something didn't work"
+            return "\(text) is not a valid realm"
         }
 
-//        guard let realms = apiResponse.json?["realms"]?.pathIndexableArray else { return "No realms" }
-//
-//        guard let selectedRealm = realms.filter(
-//        { (realm) -> Bool in
-//            realm["name"]?.string?.lowercased() == text.lowercased()
-//        }).first
-//        else
-//        {
-//            return "\(text) is not a valid realm"
-//        }
-//
-//        let realmName = selectedRealm["name"]?.string ?? "Invalid name"
-//        let status = selectedRealm["status"]?.bool ?? false
-//
-//        let message = "\(realmName) \(status ? "is" : "is not") online."
-//        let payload = try JSON(node:
-//            [
-//                "response_type" : "ephemeral",
-//                "text" : message
-//            ])
-//
-//        return payload
+        let realmName = selectedRealm["name"]?.string ?? "Invalid name"
+        let status = selectedRealm["status"]?.bool ?? false
+
+        let message = "\(realmName) \(status ? "is" : "is not") online."
+        let payload = try JSON(node:
+            [
+                "response_type" : "ephemeral",
+                "text" : message
+            ])
+
+        return payload
     }
 
     ////////////////////////////////////////////////////////////
