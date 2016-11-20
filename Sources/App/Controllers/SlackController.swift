@@ -26,6 +26,7 @@ final class SlackController
     init(drop: Droplet)
     {
         self.drop = drop
+        self.drop.client = FoundationClient.self
     }
 
     ////////////////////////////////////////////////////////////
@@ -52,20 +53,18 @@ final class SlackController
 
     func realmstatus(request: Request) throws -> ResponseRepresentable
     {
-        self.drop.client = FoundationClient.self
-        
         guard let apiKey = self.drop.config["keys", "battlenet"]?.string else
         {
             return "No valid API key"
         }
 
-        let uri = "https://us.api.battle.net/wow/realm/status?locale=en_US&apikey=\(apiKey)"
+        let uri = "https://us.api.battle.net/wow/realm/status"
         guard let text = request.data["text"]?.string else
         {
             return "Please enter the name of a World of Warcraft realm."
         }
 
-        let apiResponse = try self.drop.client.get(uri)
+        let apiResponse = try self.drop.client.get(uri, query: ["locale" : "en_US", "apikey" : apiKey])
         guard let realms = apiResponse.json?["realms"]?.pathIndexableArray else
         {
             return "No realms"
@@ -88,6 +87,39 @@ final class SlackController
             [
                 "response_type" : "ephemeral",
                 "text" : message
+            ])
+
+        return payload
+    }
+
+    ////////////////////////////////////////////////////////////
+
+    func apod(request: Request) throws -> ResponseRepresentable
+    {
+        guard let apiKey = self.drop.config["keys", "nasa"]?.string else
+        {
+            return "No valid API key"
+        }
+
+        let uri = "https://api.nasa.gov/planetary/apod"
+        let apiResponse = try drop.client.get(uri, query: ["api_key": apiKey])
+
+        let title = apiResponse.json?["title"]?.string ?? ""
+        let explanation = apiResponse.json?["explanation"]?.string ?? ""
+        let imageURL = apiResponse.json?["url"]?.string ?? ""
+
+        let attachments = try JSON(node:
+            [
+                "title" : title,
+                "text" : explanation,
+                "image_url" : imageURL,
+                "footer" : "NASA"
+            ])
+
+        let payload = try JSON(node:
+            [
+                "response_type" : "in_channel",
+                "attachments" : JSON([attachments])
             ])
 
         return payload

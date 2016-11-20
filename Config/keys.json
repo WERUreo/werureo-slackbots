@@ -1,3 +1,4 @@
 {
-    "battlenet" : "$BATTLENET_API_KEY"
+    "battlenet" : "$BATTLENET_API_KEY",
+    "nasa" : "$NASA_API_KEY"
 }

@@ -10,4 +10,7 @@ drop.get("alright", handler: slack.alright)
 // Realm Status
 drop.post("realmstatus", handler: slack.realmstatus)
 
+// NASA's Astronomy Photo of the Day
+drop.get("apod", handler: slack.apod)
+
 drop.run()
