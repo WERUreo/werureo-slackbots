@@ -124,4 +124,89 @@ final class SlackController
 
         return payload
     }
+
+    ////////////////////////////////////////////////////////////
+
+    func tabsOnTally(request: Request) throws -> ResponseRepresentable
+    {
+        let baseUri = "https://tabsontallahassee.com/api"
+        var uri: String = ""
+
+        guard let apikey = self.drop.config["keys", "tabsontallahassee"]?.string else
+        {
+            return "No valid API key"
+        }
+
+        guard let text = request.data["text"]?.string else
+        {
+            return "Please use `/tabsontally #help` to see all available options"
+        }
+
+        switch text
+        {
+            case "#people": uri = baseUri + "/people"
+            case "#bills": uri = baseUri + "/bills"
+            case "#votes": uri = baseUri + "/votes"
+            case "#organizations": uri = baseUri + "/organizations"
+            case "#memberships": uri = baseUri + "/memberships"
+            case "#help": return "This will be for help"
+            default: return "\(text) is not a valid option."
+        }
+
+        let apiResponse = try self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "")
+        return apiResponse
+    }
+
+    ////////////////////////////////////////////////////////////
+
+    func overwatch(request: Request) throws -> ResponseRepresentable
+    {
+        let baseUrl = "https://api.lootbox.eu/pc/us/"
+
+        guard let text = request.data["text"]?.string else
+        {
+            return "Overwatch Bot v1.0"
+        }
+
+        var payload: JSON
+        let parameters = text.components(separatedBy: " ")
+
+        if parameters[0] == "#profile"
+        {
+            let apiResponse = try drop.client.get("\(baseUrl)\(parameters[1])/profile")
+
+            guard let username = apiResponse.json?["data", "username"]?.string,
+                let avatar = apiResponse.json?["data", "avatar"]?.string else
+            {
+                throw Abort.custom(status: .notFound, message: "No response from API")
+            }
+
+            let fields = try JSON(
+                [
+                    AttachmentsField(title: "Title", value: "Value", isShort: true).makeNode(),
+                    AttachmentsField(title: "Title 2", value: "Value 2", isShort: true).makeNode()
+                ])
+
+            let attachments = try JSON(node:
+                [
+                    "pretext" : "Profile for \(parameters[1])",
+                    "color" : "#00ff00",
+                    "title" : username,
+                    "thumb_url" : avatar,
+                    "fields" : fields
+                ])
+
+            payload = try JSON(node:
+                [
+                    "response_type" : "in_channel",
+                    "attachments" : JSON([attachments])
+                ])
+        }
+        else
+        {
+            return "\(parameters[0]) is an invalid option."
+        }
+
+        return payload
+    }
 }
