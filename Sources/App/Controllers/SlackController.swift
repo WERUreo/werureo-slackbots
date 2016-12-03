@@ -159,6 +159,10 @@ final class SlackController
         {
             apiResponse = try self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "")
         }
+        catch ClientProtocolError.missingHost
+        {
+            apiResponse = "Missing host"
+        }
 //        catch ClientError.invalidRequestHost
 //        {
 //            apiResponse = "Invalid Request Host"
