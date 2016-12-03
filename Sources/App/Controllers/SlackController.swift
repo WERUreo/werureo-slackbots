@@ -159,27 +159,26 @@ final class SlackController
         {
             apiResponse = try self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "")
         }
-
-        catch ClientError.invalidRequestHost
-        {
-            apiResponse = "Invalid Request Host"
-        }
-        catch ClientError.invalidRequestScheme
-        {
-            apiResponse = "Invalid Request Scheme"
-        }
-        catch ClientError.invalidRequestPort
-        {
-            apiResponse = "Invalid Request Port"
-        }
-        catch ClientError.unableToConnect
-        {
-            apiResponse = "Unable To Connect"
-        }
-        catch ClientError.userInfoNotAllowedOnHTTP
-        {
-            apiResponse = "User Info Not Allowed on HTTP"
-        }
+//        catch ClientError.invalidRequestHost
+//        {
+//            apiResponse = "Invalid Request Host"
+//        }
+//        catch ClientError.invalidRequestScheme
+//        {
+//            apiResponse = "Invalid Request Scheme"
+//        }
+//        catch ClientError.invalidRequestPort
+//        {
+//            apiResponse = "Invalid Request Port"
+//        }
+//        catch ClientError.unableToConnect
+//        {
+//            apiResponse = "Unable To Connect"
+//        }
+//        catch ClientError.userInfoNotAllowedOnHTTP
+//        {
+//            apiResponse = "User Info Not Allowed on HTTP"
+//        }
         catch
         {
             apiResponse = "Something bad happened"
