@@ -160,8 +160,8 @@ final class SlackController
         }
         catch
         {
-            print(error)
-            print(error.localizedDescription)
+//            print(error)
+//            print(error.localizedDescription)
             return "Something bad happened"
         }
 //        guard let apiResponse = try? self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "") else
