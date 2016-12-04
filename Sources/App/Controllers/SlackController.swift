@@ -160,7 +160,7 @@ final class SlackController
         }
         catch
         {
-//            print(error)
+            print(error)
 //            print(error.localizedDescription)
             return "Something bad happened"
         }
