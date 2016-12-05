@@ -155,13 +155,13 @@ final class SlackController
 
         do
         {
-            let apiResponse = try self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "")
+            let apiResponse = try! self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "")
             return apiResponse
         }
-        catch
-        {
-            return "\(error)"
-        }
+//        catch
+//        {
+//            return "\(error)"
+//        }
 //        guard let apiResponse = try? self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "") else
 //        {
 //            return "Something bad happened"
