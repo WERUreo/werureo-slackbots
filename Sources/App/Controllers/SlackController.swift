@@ -153,23 +153,12 @@ final class SlackController
             default: return "\(text) is not a valid option."
         }
 
-        do
+        guard let apiResponse = try? self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "") else
         {
-            let apiResponse = try self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "")
-            return apiResponse
-        }
-        catch
-        {
-            print(error)
-//            print(error.localizedDescription)
             return "Something bad happened"
         }
-//        guard let apiResponse = try? self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "") else
-//        {
-//            return "Something bad happened"
-//        }
-//
-//        return apiResponse
+
+        return apiResponse
     }
 
     ////////////////////////////////////////////////////////////
