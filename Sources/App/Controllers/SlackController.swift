@@ -64,32 +64,40 @@ final class SlackController
             return "Please enter the name of a World of Warcraft realm."
         }
 
-        let apiResponse = try self.drop.client.get(uri, query: ["locale" : "en_US", "apikey" : apiKey])
-        guard let realms = apiResponse.json?["realms"]?.pathIndexableArray else
+        do
         {
-            return "No realms"
+            let apiResponse = try self.drop.client.get(uri, query: ["locale" : "en_US", "apikey" : apiKey])
+            guard let realms = apiResponse.json?["realms"]?.pathIndexableArray else
+            {
+                return "No realms"
+            }
+
+            guard let selectedRealm = realms.filter(
+                { (realm) -> Bool in
+                    realm["name"]?.string?.lowercased() == text.lowercased()
+            }).first
+                else
+            {
+                return "\(text) is not a valid realm"
+            }
+
+            let realmName = selectedRealm["name"]?.string ?? "Invalid name"
+            let status = selectedRealm["status"]?.bool ?? false
+
+            let message = "\(realmName) \(status ? "is" : "is not") online."
+            let payload = try JSON(node:
+                [
+                    "response_type" : "ephemeral",
+                    "text" : message
+                ])
+            
+            return payload
+        }
+        catch
+        {
+            return "\(error)"
         }
 
-        guard let selectedRealm = realms.filter(
-        { (realm) -> Bool in
-            realm["name"]?.string?.lowercased() == text.lowercased()
-        }).first
-        else
-        {
-            return "\(text) is not a valid realm"
-        }
-
-        let realmName = selectedRealm["name"]?.string ?? "Invalid name"
-        let status = selectedRealm["status"]?.bool ?? false
-
-        let message = "\(realmName) \(status ? "is" : "is not") online."
-        let payload = try JSON(node:
-            [
-                "response_type" : "ephemeral",
-                "text" : message
-            ])
-
-        return payload
     }
 
     ////////////////////////////////////////////////////////////
@@ -102,27 +110,35 @@ final class SlackController
         }
 
         let uri = "https://api.nasa.gov/planetary/apod"
-        let apiResponse = try drop.client.get(uri, query: ["api_key": apiKey])
 
-        let title = apiResponse.json?["title"]?.string ?? ""
-        let explanation = apiResponse.json?["explanation"]?.string ?? ""
-        let imageURL = apiResponse.json?["url"]?.string ?? ""
+        do
+        {
+            let apiResponse = try drop.client.get(uri, query: ["api_key": apiKey])
 
-        let attachments = try JSON(node:
-            [
-                "title" : title,
-                "text" : explanation,
-                "image_url" : imageURL,
-                "footer" : "NASA"
-            ])
+            let title = apiResponse.json?["title"]?.string ?? ""
+            let explanation = apiResponse.json?["explanation"]?.string ?? ""
+            let imageURL = apiResponse.json?["url"]?.string ?? ""
 
-        let payload = try JSON(node:
-            [
-                "response_type" : "in_channel",
-                "attachments" : JSON([attachments])
-            ])
+            let attachments = try JSON(node:
+                [
+                    "title" : title,
+                    "text" : explanation,
+                    "image_url" : imageURL,
+                    "footer" : "NASA"
+                ])
 
-        return payload
+            let payload = try JSON(node:
+                [
+                    "response_type" : "in_channel",
+                    "attachments" : JSON([attachments])
+                ])
+            
+            return payload
+        }
+        catch
+        {
+            return "\(error)"
+        }
     }
 
     ////////////////////////////////////////////////////////////
@@ -162,12 +178,6 @@ final class SlackController
         {
             return "\(error)"
         }
-//        guard let apiResponse = try? self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "") else
-//        {
-//            return "Something bad happened"
-//        }
-//
-//        return apiResponse
     }
 
     ////////////////////////////////////////////////////////////
@@ -186,34 +196,41 @@ final class SlackController
 
         if parameters[0] == "#profile"
         {
-            let apiResponse = try drop.client.get("\(baseUrl)\(parameters[1])/profile")
-
-            guard let username = apiResponse.json?["data", "username"]?.string,
-                let avatar = apiResponse.json?["data", "avatar"]?.string else
+            do
             {
-                throw Abort.custom(status: .notFound, message: "No response from API")
+                let apiResponse = try drop.client.get("\(baseUrl)\(parameters[1])/profile")
+
+                guard let username = apiResponse.json?["data", "username"]?.string,
+                    let avatar = apiResponse.json?["data", "avatar"]?.string else
+                {
+                    throw Abort.custom(status: .notFound, message: "No response from API")
+                }
+
+                let fields = try JSON(
+                    [
+                        AttachmentsField(title: "Title", value: "Value", isShort: true).makeNode(),
+                        AttachmentsField(title: "Title 2", value: "Value 2", isShort: true).makeNode()
+                    ])
+
+                let attachments = try JSON(node:
+                    [
+                        "pretext" : "Profile for \(parameters[1])",
+                        "color" : "#00ff00",
+                        "title" : username,
+                        "thumb_url" : avatar,
+                        "fields" : fields
+                    ])
+
+                payload = try JSON(node:
+                    [
+                        "response_type" : "in_channel",
+                        "attachments" : JSON([attachments])
+                    ])
             }
-
-            let fields = try JSON(
-                [
-                    AttachmentsField(title: "Title", value: "Value", isShort: true).makeNode(),
-                    AttachmentsField(title: "Title 2", value: "Value 2", isShort: true).makeNode()
-                ])
-
-            let attachments = try JSON(node:
-                [
-                    "pretext" : "Profile for \(parameters[1])",
-                    "color" : "#00ff00",
-                    "title" : username,
-                    "thumb_url" : avatar,
-                    "fields" : fields
-                ])
-
-            payload = try JSON(node:
-                [
-                    "response_type" : "in_channel",
-                    "attachments" : JSON([attachments])
-                ])
+            catch
+            {
+                return "\(error)"
+            }
         }
         else
         {
