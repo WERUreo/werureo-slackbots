@@ -26,7 +26,7 @@ final class SlackController
     init(drop: Droplet)
     {
         self.drop = drop
-//        self.drop.client = FoundationClient.self
+        self.drop.client = FoundationClient.self
     }
 
     ////////////////////////////////////////////////////////////
