@@ -145,37 +145,41 @@ final class SlackController
 
     func tabsOnTally(request: Request) throws -> ResponseRepresentable
     {
-//        let baseUri = "https://tabsontallahassee.com/api"
-//        var uri: String = ""
-//
+        let baseUri = "https://tabsontallahassee.com/api"
+        var uri: String = ""
+
         guard let apikey = self.drop.config["keys", "tabsontallahassee"]?.string else
         {
             return "No valid API key"
         }
-//
-//        guard let text = request.data["text"]?.string else
-//        {
-//            return "Please use `/tabsontally #help` to see all available options"
-//        }
-//
-//        switch text
-//        {
-//            case "#people": uri = baseUri + "/people"
-//            case "#bills": uri = baseUri + "/bills"
-//            case "#votes": uri = baseUri + "/votes"
-//            case "#organizations": uri = baseUri + "/organizations"
-//            case "#memberships": uri = baseUri + "/memberships"
-//            case "#help": return "This will be for help"
-//            default: return "\(text) is not a valid option."
-//        }
-//
-//        print(uri)
-//
-        let uri = "https://tabsontallahassee.com/api/bills"
+
+        guard let text = request.data["text"]?.string else
+        {
+            return "Please use `/tabsontally #help` to see all available options"
+        }
+
+        switch text
+        {
+            case "#people": uri = baseUri + "/people"
+            case "#bills": uri = baseUri + "/bills"
+            case "#votes": uri = baseUri + "/votes"
+            case "#organizations": uri = baseUri + "/organizations"
+            case "#memberships": uri = baseUri + "/memberships"
+            case "#help": return "This will be for help"
+            default: return "\(text) is not a valid option."
+        }
+
         do
         {
             let apiResponse = try drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "")
-            return apiResponse
+            guard let bytes = apiResponse.body.bytes else
+            {
+                return "Body of HTTP response was empty"
+            }
+
+            let json = try? JSON(bytes: bytes)
+
+            return json ?? "There was a problem with the JSON"
         }
         catch
         {
