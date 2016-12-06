@@ -174,7 +174,7 @@ final class SlackController
         let uri = "https://tabsontallahassee.com/api/bills"
         do
         {
-            let apiResponse = try self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "")
+            let apiResponse = try drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "")
             return apiResponse
         }
         catch
