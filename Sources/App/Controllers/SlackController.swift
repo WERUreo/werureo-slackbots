@@ -145,32 +145,33 @@ final class SlackController
 
     func tabsOnTally(request: Request) throws -> ResponseRepresentable
     {
-        let baseUri = "https://tabsontallahassee.com/api"
-        var uri: String = ""
-
+//        let baseUri = "https://tabsontallahassee.com/api"
+//        var uri: String = ""
+//
         guard let apikey = self.drop.config["keys", "tabsontallahassee"]?.string else
         {
             return "No valid API key"
         }
-
-        guard let text = request.data["text"]?.string else
-        {
-            return "Please use `/tabsontally #help` to see all available options"
-        }
-
-        switch text
-        {
-            case "#people": uri = baseUri + "/people"
-            case "#bills": uri = baseUri + "/bills"
-            case "#votes": uri = baseUri + "/votes"
-            case "#organizations": uri = baseUri + "/organizations"
-            case "#memberships": uri = baseUri + "/memberships"
-            case "#help": return "This will be for help"
-            default: return "\(text) is not a valid option."
-        }
-
-        print(uri)
-
+//
+//        guard let text = request.data["text"]?.string else
+//        {
+//            return "Please use `/tabsontally #help` to see all available options"
+//        }
+//
+//        switch text
+//        {
+//            case "#people": uri = baseUri + "/people"
+//            case "#bills": uri = baseUri + "/bills"
+//            case "#votes": uri = baseUri + "/votes"
+//            case "#organizations": uri = baseUri + "/organizations"
+//            case "#memberships": uri = baseUri + "/memberships"
+//            case "#help": return "This will be for help"
+//            default: return "\(text) is not a valid option."
+//        }
+//
+//        print(uri)
+//
+        let uri = "https://tabsontallahassee.com/api/bills"
         do
         {
             let apiResponse = try self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "")

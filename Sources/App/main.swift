@@ -17,7 +17,7 @@ drop.post("realmstatus", handler: slack.realmstatus)
 drop.get("apod", handler: slack.apod)
 
 // Tabs on Tallahassee Bills
-drop.post("tabsontally", handler: slack.tabsOnTally)
+drop.get("tabsontally", handler: slack.tabsOnTally)
 
 // Overwatch API
 drop.post("overwatch", handler: slack.overwatch)
