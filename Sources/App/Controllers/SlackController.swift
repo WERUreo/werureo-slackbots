@@ -26,7 +26,6 @@ final class SlackController
     init(drop: Droplet)
     {
         self.drop = drop
-//        self.drop.client = FoundationClient.self
     }
 
     ////////////////////////////////////////////////////////////
@@ -73,8 +72,8 @@ final class SlackController
             }
 
             guard let selectedRealm = realms.filter(
-                { (realm) -> Bool in
-                    realm["name"]?.string?.lowercased() == text.lowercased()
+            { (realm) -> Bool in
+                realm["name"]?.string?.lowercased() == text.lowercased()
             }).first
                 else
             {
@@ -85,10 +84,15 @@ final class SlackController
             let status = selectedRealm["status"]?.bool ?? false
 
             let message = "\(realmName) \(status ? "is" : "is not") online."
+            let attachments = try JSON(node:
+                [
+                    "text" : message,
+                    "color" : status ? "#00ff00" : "#ff0000"
+                ])
             let payload = try JSON(node:
                 [
                     "response_type" : "ephemeral",
-                    "text" : message
+                    "attachments" : JSON([attachments])
                 ])
             
             return payload
@@ -160,11 +164,11 @@ final class SlackController
 
         switch text
         {
-            case "#people": uri = baseUri + "/people"
-            case "#bills": uri = baseUri + "/bills"
-            case "#votes": uri = baseUri + "/votes"
-            case "#organizations": uri = baseUri + "/organizations"
-            case "#memberships": uri = baseUri + "/memberships"
+            case "#people": uri = baseUri + "/people/"
+            case "#bills": uri = baseUri + "/bills/"
+            case "#votes": uri = baseUri + "/votes/"
+            case "#organizations": uri = baseUri + "/organizations/"
+            case "#memberships": uri = baseUri + "/memberships/"
             case "#help": return "This will be for help"
             default: return "\(text) is not a valid option."
         }
@@ -177,9 +181,21 @@ final class SlackController
                 return "Body of HTTP response was empty"
             }
 
-            let json = try? JSON(bytes: bytes)
+            guard let json = try? JSON(bytes: bytes) else
+            {
+                return "There was a problem parsing the data"
+            }
 
-            return json ?? "There was a problem with the JSON"
+            guard let bills = json["data"]?.pathIndexableArray else
+            {
+                return "There were no bills returned by the query."
+            }
+
+            for bill in bills
+            {
+                print(bill["attributes", "title"]?.string ?? "No title")
+            }
+            return try JSON(bytes: bytes)
         }
         catch
         {
@@ -221,11 +237,11 @@ final class SlackController
 
                 let attachments = try JSON(node:
                     [
-                        "pretext" : "Profile for \(parameters[1])",
-                        "color" : "#00ff00",
-                        "title" : username,
+                        "pretext"   : "Profile for \(parameters[1])",
+                        "color"     : "#00ff00",
+                        "title"     : username,
                         "thumb_url" : avatar,
-                        "fields" : fields
+                        "fields"    : fields
                     ])
 
                 payload = try JSON(node:
@@ -245,5 +261,14 @@ final class SlackController
         }
 
         return payload
+    }
+
+    ////////////////////////////////////////////////////////////
+    // MARK: - Tabs on Tallahassee Helper Functions
+    ////////////////////////////////////////////////////////////
+
+    func bills(json: JSON)
+    {
+
     }
 }
