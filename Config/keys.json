@@ -1,5 +1,6 @@
 {
     "battlenet" : "$BATTLENET_API_KEY",
     "nasa" : "$NASA_API_KEY",
-    "tabsontallahassee" : "$TABS_ON_TALLY_KEY"
+    "tabsontallahassee" : "$TABS_ON_TALLY_KEY",
+    "seatgeek" : "$SEAT_GEEK_KEY"
 }
