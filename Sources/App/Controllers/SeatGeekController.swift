@@ -36,6 +36,12 @@ final class SeatGeekController
     {
         let uri = "\(baseURI)/events"
 
+        var inChannel: Bool = false
+        if let text = request.data["text"]?.string
+        {
+            inChannel = (text == "share") ? true : false
+        }
+
         guard let apikey = self.drop.config["keys", "seatgeek"]?.string else
         {
             return "No valid API key"
@@ -84,6 +90,14 @@ final class SeatGeekController
                 fields.append(field)
             }
 
+            if !inChannel
+            {
+                let field = AttachmentsField(title: "",
+                                             value: "To share this information in the current channel, type `/parking share`",
+                                             isShort: false)
+                fields.append(field)
+            }
+
             let attachments = try JSON(node:
                 [
                     "fields" : try fields.makeNode(),
@@ -93,7 +107,7 @@ final class SeatGeekController
 
             payload = try JSON(node:
                 [
-                    "response_type" : "in_channel",
+                    "response_type" : inChannel ? "in_channel" : "ephemeral",
                     "text" : "The following \(events.count == 1 ? "event is" : "events are") taking place today that may affect downtown parking:",
                     "attachments" : JSON([attachments])
                 ])
