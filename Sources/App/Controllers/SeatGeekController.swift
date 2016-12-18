@@ -103,6 +103,7 @@ final class SeatGeekController
                     "fields" : try fields.makeNode(),
                     "color" : "#ff0000",
                     "footer" : "Powered by SeatGeek",
+                    "mrkdwn_in" : ["fields"]
                 ])
 
             payload = try JSON(node:
