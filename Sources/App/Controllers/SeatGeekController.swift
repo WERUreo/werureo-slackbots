@@ -45,8 +45,8 @@ final class SeatGeekController
         let apiResponse = try drop.client.get(uri, query:
             [
                 "venue.id" : "3721,2652",
-                "datetime_local.gte" : now.dateString(),
-                "datetime_local.lt" : now.adding(.day, value: 1).dateString(),
+                "datetime_local.gte" : now.dateString(in: TimeZone(identifier: "America/New_York")),
+                "datetime_local.lt" : now.adding(.day, value: 1).dateString(in: TimeZone(identifier: "America/New_York")),
                 "client_id" : apikey
             ])
 
