@@ -66,7 +66,7 @@ final class SeatGeekController
         {
             payload = try JSON(node:
                 [
-                    "response_type" : "in_channel",
+                    "response_type" : inChannel ? "in_channel" : "ephemeral",
                     "text" : "There don't appear to be any events today that will affect parking."
                 ])
         }
