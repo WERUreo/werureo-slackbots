@@ -48,9 +48,10 @@ final class SeatGeekController
         }
 
         let now = Date()
+        // NOTE: Setting the timezone to "America/New_York" ensures that no matter where the host server is located, now() will represent the current date/time in EST
         let apiResponse = try drop.client.get(uri, query:
             [
-                "venue.id" : "3721,2652",
+                "venue.id" : "3721,2652", // venue ids for the Amway Center and Camping World Stadium
                 "datetime_local.gte" : now.dateString(in: TimeZone(identifier: "America/New_York")),
                 "datetime_local.lt" : now.adding(.day, value: 1).dateString(in: TimeZone(identifier: "America/New_York")),
                 "client_id" : apikey
