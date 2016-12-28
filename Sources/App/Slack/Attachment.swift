@@ -10,6 +10,10 @@ import Node
 
 struct Attachment
 {
+    ////////////////////////////////////////////////////////////
+    // MARK: - Properties
+    ////////////////////////////////////////////////////////////
+
     var fallback: String?
     var color: String?
     var pretext: String?
@@ -38,7 +42,22 @@ struct Attachment
 
     ////////////////////////////////////////////////////////////
     
-    init(fallback: String?, color: String?, pretext: String?, authorName: String?, authorLink: String?, authorIcon: String?, title: String?, titleLink: String?, text: String?, fields: [AttachmentsField]?, imageURL: String?, thumbURL: String?, footer: String?, footerIcon: String?, ts: UInt64?, markdown: [String]?)
+    init(fallback: String?,
+         color: String?,
+         pretext: String?,
+         authorName: String?,
+         authorLink: String?,
+         authorIcon: String?,
+         title: String?,
+         titleLink: String?,
+         text: String?,
+         fields: [AttachmentsField]?,
+         imageURL: String?,
+         thumbURL: String?,
+         footer: String?,
+         footerIcon: String?,
+         ts: UInt64?,
+         markdown: [String]?)
     {
         self.fallback = fallback
         self.color = color
@@ -68,22 +87,22 @@ extension Attachment : NodeRepresentable
     func makeNode(context: Context) throws -> Node
     {
         var attachments = [String : NodeRepresentable]()
-        if let fallback = fallback { attachments["fallback"] = fallback }
-        if let color = color { attachments["color"] = color }
-        if let pretext = pretext { attachments["pretext"] = pretext }
-        if let authorName = authorName { attachments["author_name"] = authorName }
-        if let authorLink = authorLink { attachments["author_link"] = authorLink }
-        if let authorIcon = authorIcon { attachments["author_icon"] = authorIcon }
-        if let title = title { attachments["title"] = title }
-        if let titleLink = titleLink { attachments["title_link"] = titleLink }
-        if let text = text { attachments["text"] = text }
-        if let fields = fields { attachments["fields"] = try fields.makeNode() }
-        if let imageURL = imageURL { attachments["image_url"] = imageURL }
-        if let thumbURL = thumbURL { attachments["thumb_url"] = thumbURL }
-        if let footer = footer { attachments["footer"] = footer }
-        if let footerIcon = footerIcon { attachments["footer_icon"] = footerIcon }
-        if let ts = ts { attachments["ts"] = ts }
-        if let markdown = markdown { attachments["mrkdwn_in"] = try markdown.makeNode() }
+        if let fallback = fallback      { attachments["fallback"] = fallback }
+        if let color = color            { attachments["color"] = color }
+        if let pretext = pretext        { attachments["pretext"] = pretext }
+        if let authorName = authorName  { attachments["author_name"] = authorName }
+        if let authorLink = authorLink  { attachments["author_link"] = authorLink }
+        if let authorIcon = authorIcon  { attachments["author_icon"] = authorIcon }
+        if let title = title            { attachments["title"] = title }
+        if let titleLink = titleLink    { attachments["title_link"] = titleLink }
+        if let text = text              { attachments["text"] = text }
+        if let fields = fields          { attachments["fields"] = try fields.makeNode() }
+        if let imageURL = imageURL      { attachments["image_url"] = imageURL }
+        if let thumbURL = thumbURL      { attachments["thumb_url"] = thumbURL }
+        if let footer = footer          { attachments["footer"] = footer }
+        if let footerIcon = footerIcon  { attachments["footer_icon"] = footerIcon }
+        if let ts = ts                  { attachments["ts"] = ts }
+        if let markdown = markdown      { attachments["mrkdwn_in"] = try markdown.makeNode() }
 
         return try Node(node: attachments)
     }
