@@ -99,19 +99,17 @@ final class SeatGeekController
                 fields.append(field)
             }
 
-            let attachments = try JSON(node:
-                [
-                    "fields" : try fields.makeNode(),
-                    "color" : "#ff0000",
-                    "footer" : "Powered by SeatGeek",
-                    "mrkdwn_in" : ["fields"]
-                ])
+            var attachments = Attachment()
+            attachments.fields = fields
+            attachments.color = "#ff0000"
+            attachments.footer = "Powered by SeatGeek"
+            attachments.markdown = ["fields"]
 
             payload = try JSON(node:
                 [
                     "response_type" : inChannel ? "in_channel" : "ephemeral",
                     "text" : "The following \(events.count == 1 ? "event is" : "events are") taking place today that may affect downtown parking:",
-                    "attachments" : JSON([attachments])
+                    "attachments" : JSON([try attachments.makeNode()])
                 ])
         }
 

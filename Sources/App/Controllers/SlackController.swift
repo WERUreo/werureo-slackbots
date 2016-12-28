@@ -34,15 +34,13 @@ final class SlackController
 
     func alright(request: Request) throws -> ResponseRepresentable
     {
-        let attachments = try JSON(node:
-            [
-                "image_url": "https://s3.amazonaws.com/werureo-random/hurricane_matthew.png"
-            ])
+        var attachments = Attachment()
+        attachments.imageURL = "https://s3.amazonaws.com/werureo-random/hurricane_matthew.png"
 
         let payload = try JSON(node:
             [
                 "response_type": "in_channel",
-                "attachments": JSON([attachments])
+                "attachments": JSON([try attachments.makeNode()])
             ])
         
         return payload
@@ -84,15 +82,15 @@ final class SlackController
             let status = selectedRealm["status"]?.bool ?? false
 
             let message = "\(realmName) \(status ? "is" : "is not") online."
-            let attachments = try JSON(node:
-                [
-                    "text" : message,
-                    "color" : status ? "#00ff00" : "#ff0000"
-                ])
+
+            var attachments = Attachment()
+            attachments.text = message
+            attachments.color = status ? "#00ff00" : "#ff0000"
+
             let payload = try JSON(node:
                 [
                     "response_type" : "ephemeral",
-                    "attachments" : JSON([attachments])
+                    "attachments" : JSON([try attachments.makeNode()])
                 ])
             
             return payload
@@ -123,18 +121,16 @@ final class SlackController
             let explanation = apiResponse.json?["explanation"]?.string ?? ""
             let imageURL = apiResponse.json?["url"]?.string ?? ""
 
-            let attachments = try JSON(node:
-                [
-                    "title" : title,
-                    "text" : explanation,
-                    "image_url" : imageURL,
-                    "footer" : "NASA"
-                ])
+            var attachments = Attachment()
+            attachments.title = title
+            attachments.text = explanation
+            attachments.imageURL = imageURL
+            attachments.footer = "NASA"
 
             let payload = try JSON(node:
                 [
                     "response_type" : "in_channel",
-                    "attachments" : JSON([attachments])
+                    "attachments" : JSON([try attachments.makeNode()])
                 ])
             
             return payload
@@ -229,25 +225,23 @@ final class SlackController
                     throw Abort.custom(status: .notFound, message: "No response from API")
                 }
 
-                let fields = try JSON(
+                let fields =
                     [
-                        AttachmentsField(title: "Title", value: "Value", isShort: true).makeNode(),
-                        AttachmentsField(title: "Title 2", value: "Value 2", isShort: true).makeNode()
-                    ])
+                        AttachmentsField(title: "Title", value: "Value", isShort: true),
+                        AttachmentsField(title: "Title 2", value: "Value 2", isShort: true)
+                    ]
 
-                let attachments = try JSON(node:
-                    [
-                        "pretext"   : "Profile for \(parameters[1])",
-                        "color"     : "#00ff00",
-                        "title"     : username,
-                        "thumb_url" : avatar,
-                        "fields"    : fields
-                    ])
+                var attachments = Attachment()
+                attachments.color = "#00ff00"
+                attachments.pretext = "Profile for \(parameters[1])"
+                attachments.title = username
+                attachments.fields = fields
+                attachments.thumbURL = avatar
 
                 payload = try JSON(node:
                     [
                         "response_type" : "in_channel",
-                        "attachments" : JSON([attachments])
+                        "attachments" : JSON([try attachments.makeNode()])
                     ])
             }
             catch
