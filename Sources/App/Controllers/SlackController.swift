@@ -115,7 +115,7 @@ final class SlackController
 
         do
         {
-            let apiResponse = try drop.client.get(uri, query: ["api_key": apiKey])
+            let apiResponse = try self.drop.client.get(uri, query: ["api_key": apiKey])
 
             let title = apiResponse.json?["title"]?.string ?? ""
             let explanation = apiResponse.json?["explanation"]?.string ?? ""
@@ -171,7 +171,7 @@ final class SlackController
 
         do
         {
-            let apiResponse = try drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "")
+            let apiResponse = try self.drop.client.get(uri, headers: ["X-APIKEY" : apikey], query: [:], body: "")
             guard let bytes = apiResponse.body.bytes else
             {
                 return "Body of HTTP response was empty"
@@ -217,7 +217,7 @@ final class SlackController
         {
             do
             {
-                let apiResponse = try drop.client.get("\(baseUrl)\(parameters[1])/profile")
+                let apiResponse = try self.drop.client.get("\(baseUrl)\(parameters[1])/profile")
 
                 guard let username = apiResponse.json?["data", "username"]?.string,
                     let avatar = apiResponse.json?["data", "avatar"]?.string else

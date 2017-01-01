@@ -87,22 +87,22 @@ extension Attachment : NodeRepresentable
     func makeNode(context: Context) throws -> Node
     {
         var attachments = [String : NodeRepresentable]()
-        if let fallback = fallback      { attachments["fallback"] = fallback }
-        if let color = color            { attachments["color"] = color }
-        if let pretext = pretext        { attachments["pretext"] = pretext }
-        if let authorName = authorName  { attachments["author_name"] = authorName }
-        if let authorLink = authorLink  { attachments["author_link"] = authorLink }
-        if let authorIcon = authorIcon  { attachments["author_icon"] = authorIcon }
-        if let title = title            { attachments["title"] = title }
-        if let titleLink = titleLink    { attachments["title_link"] = titleLink }
-        if let text = text              { attachments["text"] = text }
-        if let fields = fields          { attachments["fields"] = try fields.makeNode() }
-        if let imageURL = imageURL      { attachments["image_url"] = imageURL }
-        if let thumbURL = thumbURL      { attachments["thumb_url"] = thumbURL }
-        if let footer = footer          { attachments["footer"] = footer }
-        if let footerIcon = footerIcon  { attachments["footer_icon"] = footerIcon }
-        if let ts = ts                  { attachments["ts"] = ts }
-        if let markdown = markdown      { attachments["mrkdwn_in"] = try markdown.makeNode() }
+        if let fallback = self.fallback     { attachments["fallback"] = fallback }
+        if let color = self.color           { attachments["color"] = color }
+        if let pretext = self.pretext       { attachments["pretext"] = pretext }
+        if let authorName = self.authorName { attachments["author_name"] = authorName }
+        if let authorLink = self.authorLink { attachments["author_link"] = authorLink }
+        if let authorIcon = self.authorIcon { attachments["author_icon"] = authorIcon }
+        if let title = self.title           { attachments["title"] = title }
+        if let titleLink = self.titleLink   { attachments["title_link"] = titleLink }
+        if let text = self.text             { attachments["text"] = text }
+        if let fields = self.fields         { attachments["fields"] = try fields.makeNode() }
+        if let imageURL = self.imageURL     { attachments["image_url"] = imageURL }
+        if let thumbURL = self.thumbURL     { attachments["thumb_url"] = thumbURL }
+        if let footer = self.footer         { attachments["footer"] = footer }
+        if let footerIcon = self.footerIcon { attachments["footer_icon"] = footerIcon }
+        if let ts = self.ts                 { attachments["ts"] = ts }
+        if let markdown = self.markdown     { attachments["mrkdwn_in"] = try markdown.makeNode() }
 
         return try Node(node: attachments)
     }

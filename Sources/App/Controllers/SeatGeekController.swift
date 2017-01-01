@@ -34,7 +34,7 @@ final class SeatGeekController
 
     func parking(request: Request) throws -> ResponseRepresentable
     {
-        let uri = "\(baseURI)/events"
+        let uri = "\(self.baseURI)/events"
 
         var inChannel: Bool = false
         if let text = request.data["text"]?.string
@@ -49,7 +49,7 @@ final class SeatGeekController
 
         let now = Date()
         // NOTE: Setting the timezone to "America/New_York" ensures that no matter where the host server is located, now() will represent the current date/time in EST
-        let apiResponse = try drop.client.get(uri, query:
+        let apiResponse = try self.drop.client.get(uri, query:
             [
                 "venue.id" : "3721,2652", // venue ids for the Amway Center and Camping World Stadium
                 "datetime_local.gte" : now.dateString(in: TimeZone(identifier: "America/New_York")),
@@ -108,7 +108,7 @@ final class SeatGeekController
             payload = try JSON(node:
                 [
                     "response_type" : inChannel ? "in_channel" : "ephemeral",
-                    "text" : "The following \(events.count == 1 ? "event is" : "events are") taking place today that may affect downtown parking:",
+                    "text" : "The following \(events.count == 1 ? "event is" : "events are") taking place today and may affect downtown parking:",
                     "attachments" : JSON([try attachments.makeNode()])
                 ])
         }
