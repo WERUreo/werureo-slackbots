@@ -219,8 +219,7 @@ final class SlackController
 
         if parameters[0] == "#profile"
         {
-            let queue = DispatchQueue(label: "asyncQueue")
-            queue.async
+            DispatchQueue.global(qos: .userInitiated).async
             {
                 do
                 {
