@@ -10,6 +10,7 @@ import Vapor
 import HTTP
 import Transport
 import Foundation
+import Dispatch
 
 final class SlackController
 {
