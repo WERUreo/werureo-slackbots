@@ -205,48 +205,62 @@ final class SlackController
     {
         let baseUrl = "https://api.lootbox.eu/pc/us/"
 
-        guard let text = request.data["text"]?.string else
+        guard let slackRequest = try? SlackRequest(node: request.formURLEncoded) else
+        {
+            return "This route is expected to be coming from Slack"
+        }
+
+        guard let text = slackRequest.text else
         {
             return "Overwatch Bot v1.0"
         }
 
-        var payload: JSON
         let parameters = text.components(separatedBy: " ")
 
         if parameters[0] == "#profile"
         {
-            do
+            let queue = DispatchQueue(label: "asyncQueue")
+            queue.async
             {
-                let apiResponse = try self.drop.client.get("\(baseUrl)\(parameters[1])/profile")
-
-                guard let username = apiResponse.json?["data", "username"]?.string,
-                    let avatar = apiResponse.json?["data", "avatar"]?.string else
+                do
                 {
-                    throw Abort.custom(status: .notFound, message: "No response from API")
-                }
+                    var payload: JSON
+                    let battleTag = parameters[1].contains("#") ? parameters[1].replacingOccurrences(of: "#", with: "-") : parameters[1]    
 
-                let fields =
-                    [
-                        AttachmentsField(title: "Title", value: "Value", isShort: true),
-                        AttachmentsField(title: "Title 2", value: "Value 2", isShort: true)
+                    let apiResponse = try self.drop.client.get("\(baseUrl)\(battleTag)/profile")
+
+                    guard let username = apiResponse.json?["data", "username"]?.string,
+                        let avatar = apiResponse.json?["data", "avatar"]?.string else
+                    {
+                        throw Abort.custom(status: .notFound, message: "No response from API")
+                    }
+
+                    let fields =
+                        [
+                            AttachmentsField(title: "Title", value: "Value", isShort: true),
+                            AttachmentsField(title: "Title 2", value: "Value 2", isShort: true)
                     ]
 
-                var attachments = Attachment()
-                attachments.color = "#00ff00"
-                attachments.pretext = "Profile for \(parameters[1])"
-                attachments.title = username
-                attachments.fields = fields
-                attachments.thumbURL = avatar
+                    var attachments = Attachment()
+                    attachments.color = "#00ff00"
+                    attachments.pretext = "Profile for \(parameters[1])"
+                    attachments.title = username
+                    attachments.fields = fields
+                    attachments.thumbURL = avatar
 
-                payload = try JSON(node:
-                    [
-                        "response_type" : "in_channel",
-                        "attachments" : JSON([try attachments.makeNode()])
-                    ])
-            }
-            catch
-            {
-                return "\(error)"
+                    payload = try JSON(node:
+                        [
+                            "response_type" : "in_channel",
+                            "attachments" : JSON([try attachments.makeNode()])
+                        ])
+
+                    print("trying to post")
+                    let _ = try self.drop.client.post(slackRequest.responseURL, headers: ["Content-Type" : "application/json"], query: [:], body: payload.makeBody())
+                }
+                catch
+                {
+                    print(error)
+                }
             }
         }
         else
@@ -254,7 +268,34 @@ final class SlackController
             return "\(parameters[0]) is an invalid option."
         }
 
-        return payload
+        print("Hitting the return")
+        return "Please hold..."
+    }
+
+    ////////////////////////////////////////////////////////////
+
+    func spoiler(request: Request) throws -> ResponseRepresentable
+    {
+        if let slackRequest = try? SlackRequest(node: request.formURLEncoded)
+        {
+            let responseURL = slackRequest.responseURL
+            let username = slackRequest.userName
+            let text = slackRequest.text ?? ""
+
+            let payload = try JSON(node:
+                [
+                    "response_type" : "in_channel",
+                    "text" : "<\(responseURL)|\(username) sent \(text)>"
+                ])
+
+            let _ = try self.drop.client.post(responseURL, headers: ["Content-Type" : "application/json"], query: [:], body: payload.makeBody())
+
+            return ""
+        }
+        else
+        {
+            return "This route is intended for use with a Slack slash command."
+        }
     }
 
     ////////////////////////////////////////////////////////////

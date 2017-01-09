@@ -2,5 +2,6 @@
     "battlenet" : "$BATTLENET_API_KEY",
     "nasa" : "$NASA_API_KEY",
     "tabsontallahassee" : "$TABS_ON_TALLY_KEY",
-    "seatgeek" : "$SEAT_GEEK_KEY"
+    "seatgeek" : "$SEAT_GEEK_KEY",
+    "darksky" : "$DARK_SKY_KEY"
 }
