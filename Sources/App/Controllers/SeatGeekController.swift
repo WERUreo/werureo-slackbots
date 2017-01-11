@@ -74,7 +74,7 @@ final class SeatGeekController
             payload = try JSON(node:
                 [
                     "response_type" : inChannel ? "in_channel" : "ephemeral",
-                    "text" : "There don't appear to be any events today that will affect parking."
+                    "text" : "There doesn't appear to be any events today that will affect parking."
                 ])
         }
         else
@@ -108,7 +108,7 @@ final class SeatGeekController
             var attachments = Attachment()
             attachments.fields = fields
             attachments.color = "#ff0000"
-            attachments.footer = "Powered by SeatGeek"
+            attachments.footer = "Powered by <https://seatgeek.com/|SeatGeek>"
             attachments.markdown = ["fields"]
 
             payload = try JSON(node:
