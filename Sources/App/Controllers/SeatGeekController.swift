@@ -57,7 +57,7 @@ final class SeatGeekController
         let easternTime = TimeZone(identifier: "America/New_York")
         let apiResponse = try self.drop.client.get(uri, query:
             [
-                "venue.id" : "3721,2652,59984", // venue ids for the Amway Center, Camping World Stadium, and the Dr. Phillips Center
+                "venue.id" : "3721,2652", // venue ids for the Amway Center and Camping World Stadium (Dr. Phillips Center == 59984)
                 "datetime_local.gte" : now.dateString(in: easternTime),
                 "datetime_local.lt" : now.adding(.day, value: 1).dateString(in: easternTime),
                 "client_id" : apikey
