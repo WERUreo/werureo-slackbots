@@ -24,10 +24,10 @@ final class WeatherController
         {
             switch self
             {
-                case .invalidAPIKey: return NSLocalizedString("Invalid API Key", comment: "The API key provided is not valid")
-                case .invalidAddress: return NSLocalizedString("Invalid address", comment: "The provided zip code does not have a readable address")
-                case .invalidZipcode: return NSLocalizedString("Invalid zip code", comment: "The provided zip code is not valid")
-                case .invalidLocation: return NSLocalizedString("Invalid location", comment: "The provided zip code does not have valid coordinates")
+                case .invalidAPIKey: return "The API key provided is not valid"
+                case .invalidAddress: return "The provided zip code does not have a readable address"
+                case .invalidZipcode: return "The provided zip code is not valid"
+                case .invalidLocation: return "The provided zip code does not have valid coordinates"
             }
         }
     }
