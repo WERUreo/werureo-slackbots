@@ -222,6 +222,8 @@ final class SlackController
         {
             DispatchQueue.global(qos: .userInitiated).async
             {
+                let startTime = Date()
+
                 do
                 {
                     var payload: JSON
@@ -235,6 +237,9 @@ final class SlackController
                         throw Abort.custom(status: .notFound, message: "No response from API")
                     }
 
+                    let endTime = Date()
+                    let executionTime = endTime.timeIntervalSince(startTime)
+
                     let fields =
                         [
                             AttachmentsField(title: "Title", value: "Value", isShort: true),
@@ -247,6 +252,7 @@ final class SlackController
                     attachments.title = username
                     attachments.fields = fields
                     attachments.thumbURL = avatar
+                    attachments.footer = "Query executed in \(executionTime) seconds."
 
                     payload = try JSON(node:
                         [

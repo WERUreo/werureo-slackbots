@@ -13,7 +13,11 @@ import Dispatch
 
 final class WeatherController
 {
-    enum LocationError : Error, LocalizedError
+    ////////////////////////////////////////////////////////////
+    // MARK: - Enumerations
+    ////////////////////////////////////////////////////////////
+
+    enum LocationError: Error, LocalizedError
     {
         case invalidZipcode
         case invalidLocation
@@ -29,6 +33,46 @@ final class WeatherController
                 case .invalidZipcode: return "The provided zip code is not valid"
                 case .invalidLocation: return "The provided zip code does not have valid coordinates"
             }
+        }
+    }
+
+    ////////////////////////////////////////////////////////////
+
+    enum WeatherIcon: String
+    {
+        case clearDay           = "clear-day"
+        case clearNight         = "clear-night"
+        case rain               = "rain"
+        case snow               = "snow"
+        case sleet              = "sleet"
+        case wind               = "wind"
+        case fog                = "fog"
+        case cloudy             = "cloudy"
+        case partlyCloudyDay    = "partly-cloudy-day"
+        case partlyCloudyNight  = "partly-cloudy-night"
+        case undefined          = ""
+
+        func iconString() -> String
+        {
+            var icon: String
+            let baseURL = "https://icons.wxug.com/i/c/j"
+
+            switch self
+            {
+                case .clearDay:             icon = "\(baseURL)/clear.gif"
+                case .clearNight:           icon = "\(baseURL)/nt_clear.gif"
+                case .rain:                 icon = "\(baseURL)/rain.gif"
+                case .snow:                 icon = "\(baseURL)/snow.gif"
+                case .sleet:                icon = "\(baseURL)/sleet.gif"
+                case .wind:                 icon = "\(baseURL)/hazy.gif"
+                case .fog:                  icon = "\(baseURL)/fog.gif"
+                case .cloudy:               icon = "\(baseURL)/cloudy.gif"
+                case .partlyCloudyDay:      icon = "\(baseURL)/partlycloudy.gif"
+                case .partlyCloudyNight:    icon = "\(baseURL)/nt_partlycloudy.gif"
+                default:                    icon = "\(baseURL)/sunny.gif"
+            }
+
+            return icon
         }
     }
 
@@ -70,63 +114,73 @@ final class WeatherController
             return "Please include a zip code"
         }
 
-        let responseURL = slackRequest.responseURL
-
         DispatchQueue.global(qos: .userInitiated).async
         {
-            var payload: JSON?
+            var payload = SlackPayload()
 
             self.getLatLong(for: text)
             { (coords: (lat: Double, long: Double, city: String)?, error: Error?) in
-                do
+                var attachments = [Attachment] ()
+
+                if error != nil
                 {
-                    var attachments = [Attachment]()
-
-                    if error != nil
+                    payload.responseType = .ephemeral
+                    payload.text = "There was an error getting coordinates for \(text): \(error?.localizedDescription)"
+                }
+                else
+                {
+                    guard let city = coords?.city, let lat = coords?.lat, let long = coords?.long else
                     {
-                        payload = try? JSON(node:
-                        [
-                            "response_type" : "ephemeral",
-                            "text" : "There was an error getting coordinates for \(text): \(error?.localizedDescription)"
-                        ])
-                    }
-                    else
-                    {
-                        guard let city = coords?.city, let lat = coords?.lat, let long = coords?.long else
-                        {
-                            return
-                        }
-
-                        let apiResponse = try self.drop.client.get("\(self.baseURI)/\(apikey)/\(lat),\(long)")
-                        guard let temperature = apiResponse.json?["currently", "temperature"]?.string else
-                        {
-                            payload = try? JSON(node:
-                            [
-                                "text" : "Invalid temperature"
-                            ])
-
-                            _ = try? self.drop.client.post(responseURL, headers: ["Content-Type" : "application/json"], query: [:], body: (payload?.makeBody())!)
-                            return
-                        }
-
-                        var attachment = Attachment()
-                        attachment.title = "Current weather for \(city)"
-                        attachment.text = "\(temperature)º"
-                        attachments.append(attachment)
-
-                        payload = try? JSON(node:
-                        [
-                            "response_type" : "in_channel",
-                            "attachments" : try attachments.makeNode()
-                        ])
+                        return
                     }
 
-                    _ = try? self.drop.client.post(responseURL, headers: ["Content-Type" : "application/json"], query: [:], body: (payload?.makeBody())!)
+                    // GET https://api.darksky.net/forecast/[key]/[latitude],[longitude]?exclude=minutely,hourly,daily,flag
+                    let apiResponse = try self.drop.client.get("\(self.baseURI)/\(apikey)/\(lat),\(long)", query: ["exclude" : "minutely,hourly,daily,flags"])
+
+                    let currentTemp = apiResponse.json?["currently", "temperature"]?.double?.temperatureString() ?? "--"
+                    let feelsLikeTemp = apiResponse.json?["currently", "apparentTemperature"]?.double?.temperatureString() ?? "--"
+                    let dewPointTemp = apiResponse.json?["currently", "dewPoint"]?.double?.temperatureString() ?? "--"
+
+                    var wind: String = "--"
+                    if let windBearing = apiResponse.json?["currently", "windBearing"]?.int,
+                        let windSpeed = apiResponse.json?["currently", "windSpeed"]?.double
+                    {
+                        wind = "From the \(self.windDirection(from: windBearing)) at \(Int(windSpeed.rounded())) MPH"
+                    }
+
+                    var precipChance = "0%"
+                    if let precip = apiResponse.json?["currently", "precipProbability"]?.double
+                    {
+                        precipChance = "\(Int((precip * 100).rounded()))%"
+                    }
+
+                    let summary = apiResponse.json?["currently", "summary"]?.string ?? ""
+                    let icon = apiResponse.json?["currently", "icon"]?.string ?? ""
+
+                    let fields =
+                    [
+                        AttachmentsField(title: "Wind", value: wind, isShort: true),
+                        AttachmentsField(title: "Feels Like", value: feelsLikeTemp, isShort: true),
+                        AttachmentsField(title: "Chance of Precipitation", value: precipChance, isShort: true),
+                        AttachmentsField(title: "Dew Point", value: dewPointTemp, isShort: true)
+                    ]
+                    
+                    var attachment = Attachment()
+                    attachment.title = "It is currently \(currentTemp) \(summary) in \(city)"
+                    attachment.fields = fields
+                    attachment.color = "good"
+                    attachment.thumbURL = WeatherIcon(rawValue: icon)?.iconString()
+                    attachment.footer = "<https://darksky.net/poweredby/|Powered by Dark Sky>"
+                    attachments.append(attachment)
+
+                    payload.responseType = .inChannel
+                    payload.attachments = attachments
                 }
-                catch
-                {
-                    print(error)
-                }
+
+                _ = try? self.drop.client.post(slackRequest.responseURL,
+                                               headers: ["Content-Type" : "application/json"],
+                                               query: [:],
+                                               body: JSON(node: try? payload.makeNode()))
             }
         }
 
@@ -137,42 +191,61 @@ final class WeatherController
     // MARK: - Helper Functions
     ////////////////////////////////////////////////////////////
 
-    func getLatLong(for zipcode: String, completion: @escaping ((Double, Double, String)?, Error?) -> ())
+    func getLatLong(for zipcode: String, completion: @escaping ((Double, Double, String)?, Error?) throws -> ())
     {
         let baseURI = "https://maps.googleapis.com/maps/api/geocode/json"
         do
         {
             guard let apikey = self.drop.config["keys", "google"]?.string else
             {
-                completion(nil, LocationError.invalidAPIKey)
+                try? completion(nil, LocationError.invalidAPIKey)
                 return
             }
 
             let response = try self.drop.client.get(baseURI, query: ["address" : zipcode, "key" : apikey])
             guard let results = response.json?["results"]?.pathIndexableArray else
             {
-                completion(nil, LocationError.invalidZipcode)
+                try? completion(nil, LocationError.invalidZipcode)
                 return
             }
 
             guard let address = results.first?["formatted_address"]?.string else
             {
-                completion(nil, LocationError.invalidAddress)
+                try? completion(nil, LocationError.invalidAddress)
                 return
             }
 
             guard let latitude = results.first?["geometry", "location", "lat"]?.double,
                 let longitude = results.first?["geometry", "location", "lng"]?.double else
             {
-                completion(nil, LocationError.invalidLocation)
+                try? completion(nil, LocationError.invalidLocation)
                 return
             }
 
-            completion((latitude, longitude, address), nil)
+            try? completion((latitude, longitude, address), nil)
         }
         catch
         {
-            completion(nil, error)
+            try? completion(nil, error)
         }
+    }
+
+    ////////////////////////////////////////////////////////////
+
+    func windDirection(from degrees: Int) -> String
+    {
+        let directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+        let index = Int((Double(degrees) + 11.25) / 22.5)
+        return directions[index % 16]
+    }
+}
+
+////////////////////////////////////////////////////////////
+
+extension Double
+{
+    func temperatureString() -> String
+    {
+        return "\(Int(self.rounded()))º F"
     }
 }

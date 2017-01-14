@@ -29,9 +29,12 @@ struct SlackPayload
     // MARK: - Initializers
     ////////////////////////////////////////////////////////////
 
-    init()
+    init(text: String? = nil, attachments: [Attachment]? = nil, responseType: ResponseType = .ephemeral, isMarkdownEnabled: Bool = true)
     {
-
+        self.text = text
+        self.attachments = attachments
+        self.responseType = responseType
+        self.isMarkdownEnabled = isMarkdownEnabled
     }
 }
 
