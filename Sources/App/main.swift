@@ -1,7 +1,7 @@
 import Vapor
 import TLS
 
-setupClient()
+//setupClient()
 
 let drop = Droplet()
 

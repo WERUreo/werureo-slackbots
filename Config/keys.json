@@ -3,5 +3,6 @@
     "nasa" : "$NASA_API_KEY",
     "tabsontallahassee" : "$TABS_ON_TALLY_KEY",
     "seatgeek" : "$SEAT_GEEK_KEY",
-    "darksky" : "$DARK_SKY_KEY"
+    "darksky" : "$DARK_SKY_KEY",
+    "google" : "$GOOGLE_KEY"
 }
