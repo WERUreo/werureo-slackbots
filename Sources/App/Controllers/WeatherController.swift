@@ -137,25 +137,27 @@ final class WeatherController
                     // GET https://api.darksky.net/forecast/[key]/[latitude],[longitude]?exclude=minutely,hourly,daily,flag
                     let apiResponse = try self.drop.client.get("\(self.baseURI)/\(apikey)/\(lat),\(long)", query: ["exclude" : "minutely,hourly,daily,flags"])
 
-                    let currentTemp = apiResponse.json?["currently", "temperature"]?.double?.temperatureString() ?? "--"
-                    let feelsLikeTemp = apiResponse.json?["currently", "apparentTemperature"]?.double?.temperatureString() ?? "--"
-                    let dewPointTemp = apiResponse.json?["currently", "dewPoint"]?.double?.temperatureString() ?? "--"
+                    let currently = apiResponse.json?["currently"]
+
+                    let currentTemp = currently?["temperature"]?.double?.temperatureString() ?? "--"
+                    let feelsLikeTemp = currently?["apparentTemperature"]?.double?.temperatureString() ?? "--"
+                    let dewPointTemp = currently?["dewPoint"]?.double?.temperatureString() ?? "--"
 
                     var wind: String = "--"
-                    if let windBearing = apiResponse.json?["currently", "windBearing"]?.int,
-                        let windSpeed = apiResponse.json?["currently", "windSpeed"]?.double
+                    if let windBearing = currently?["windBearing"]?.int,
+                        let windSpeed = currently?["windSpeed"]?.double
                     {
                         wind = "From the \(self.windDirection(from: windBearing)) at \(Int(windSpeed.rounded())) MPH"
                     }
 
                     var precipChance = "0%"
-                    if let precip = apiResponse.json?["currently", "precipProbability"]?.double
+                    if let precip = currently?["precipProbability"]?.double
                     {
                         precipChance = "\(Int((precip * 100).rounded()))%"
                     }
 
-                    let summary = apiResponse.json?["currently", "summary"]?.string ?? ""
-                    let icon = apiResponse.json?["currently", "icon"]?.string ?? ""
+                    let summary = currently?["summary"]?.string ?? ""
+                    let icon = currently?["icon"]?.string ?? ""
 
                     let fields =
                     [
@@ -170,8 +172,26 @@ final class WeatherController
                     attachment.fields = fields
                     attachment.color = "good"
                     attachment.thumbURL = WeatherIcon(rawValue: icon)?.iconString()
-                    attachment.footer = "<https://darksky.net/poweredby/|Powered by Dark Sky>"
+//                    attachment.footer = "<https://darksky.net/poweredby/|Powered by Dark Sky>"
                     attachments.append(attachment)
+
+                    // Alerts
+                    if let alerts = apiResponse.json?["alerts"]?.pathIndexableArray
+                    {
+                        for alert in alerts
+                        {
+                            var alertAttachment = Attachment()
+                            alertAttachment.title = alert["title"]?.string ?? "--"
+                            alertAttachment.titleLink = alert["uri"]?.string ?? ""
+                            alertAttachment.color = "danger"
+                            alertAttachment.text = alert["description"]?.string ?? ""
+
+                            attachments.append(alertAttachment)
+                        }
+                    }
+
+                    // Add the "Powered by Dark Sky" footer to the last attachment
+                    attachments[attachments.count - 1].footer = "<https://darksky.net/poweredby/|Powered by Dark Sky>"
 
                     payload.responseType = .inChannel
                     payload.attachments = attachments
