@@ -135,13 +135,20 @@ final class WeatherController
                     }
 
                     // GET https://api.darksky.net/forecast/[key]/[latitude],[longitude]?exclude=minutely,hourly,daily,flag
-                    let apiResponse = try self.drop.client.get("\(self.baseURI)/\(apikey)/\(lat),\(long)", query: ["exclude" : "minutely,hourly,daily,flags"])
+                    let apiResponse = try self.drop.client.get("\(self.baseURI)/\(apikey)/\(lat),\(long)", query: ["exclude" : "minutely,flags"])
 
                     let currently = apiResponse.json?["currently"]
+                    let hourly = apiResponse.json?["hourly"]
+                    let daily = apiResponse.json?["daily"]
+                    let today = daily?["data"]?.pathIndexableArray?.first
 
                     let currentTemp = currently?["temperature"]?.double?.temperatureString() ?? "--"
                     let feelsLikeTemp = currently?["apparentTemperature"]?.double?.temperatureString() ?? "--"
                     let dewPointTemp = currently?["dewPoint"]?.double?.temperatureString() ?? "--"
+
+                    let highTemp = today?["temperatureMax"]?.double?.temperatureString() ?? "--"
+                    let lowTemp = today?["temperatureMin"]?.double?.temperatureString() ?? "--"
+                    let hourlySummary = hourly?["summary"]?.string ?? ""
 
                     var wind: String = "--"
                     if let windBearing = currently?["windBearing"]?.int,
@@ -161,6 +168,8 @@ final class WeatherController
 
                     let fields =
                     [
+                        AttachmentsField(title: "High", value: highTemp, isShort: true),
+                        AttachmentsField(title: "Low", value: lowTemp, isShort: true),
                         AttachmentsField(title: "Wind", value: wind, isShort: true),
                         AttachmentsField(title: "Feels Like", value: feelsLikeTemp, isShort: true),
                         AttachmentsField(title: "Chance of Precipitation", value: precipChance, isShort: true),
@@ -169,10 +178,10 @@ final class WeatherController
                     
                     var attachment = Attachment()
                     attachment.title = "It is currently \(currentTemp) \(summary) in \(city)"
+                    attachment.text = hourlySummary
                     attachment.fields = fields
                     attachment.color = "good"
                     attachment.thumbURL = WeatherIcon(rawValue: icon)?.iconString()
-//                    attachment.footer = "<https://darksky.net/poweredby/|Powered by Dark Sky>"
                     attachments.append(attachment)
 
                     // Alerts
