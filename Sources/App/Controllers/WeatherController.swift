@@ -194,6 +194,7 @@ final class WeatherController
                     attachments[attachments.count - 1].footer = "<https://darksky.net/poweredby/|Powered by Dark Sky>"
 
                     payload.responseType = .inChannel
+                    payload.text = "\(slackRequest.userName) requested the weather for \(text)"
                     payload.attachments = attachments
                 }
 

@@ -107,7 +107,7 @@ final class SeatGeekController
 
             var attachments = Attachment()
             attachments.fields = fields
-            attachments.color = "#ff0000"
+            attachments.color = "danger"
             attachments.footer = "Powered by <https://seatgeek.com/|SeatGeek>"
             attachments.markdown = ["fields"]
 
