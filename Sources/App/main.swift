@@ -1,35 +1,22 @@
 import Vapor
-import TLS
-
-//setupClient()
+import VaporPostgreSQL
 
 let drop = Droplet()
+try drop.addProvider(VaporPostgreSQL.Provider)
+drop.preparations += Train.self
+drop.preparations += Station.self
+drop.preparations += Schedule.self
 
 let slack = SlackController(drop: drop)
+slack.addRoutes()
+
 let seatgeek = SeatGeekController(drop: drop)
+seatgeek.addRoutes()
+
 let weather = WeatherController(drop: drop)
+weather.addRoutes()
 
-// Alright, alright, alright
-drop.get("alright", handler: slack.alright)
-
-// Realm Status
-drop.post("realmstatus", handler: slack.realmstatus)
-
-// NASA's Astronomy Photo of the Day
-drop.get("apod", handler: slack.apod)
-
-// Tabs on Tallahassee Bills
-drop.post("tabsontally", handler: slack.tabsOnTally)
-
-// Overwatch API
-drop.post("overwatch", handler: slack.overwatch)
-
-drop.post("spoiler", handler: slack.spoiler)
-
-// Seat Geek API
-drop.post("parking", handler: seatgeek.parking)
-
-// Dark Sky API
-drop.post("weather", handler: weather.weather)
+let sunrail = SunRailController(drop: drop)
+sunrail.addRoutes()
 
 drop.run()

@@ -30,6 +30,20 @@ final class SlackController
     }
 
     ////////////////////////////////////////////////////////////
+    // MARK: - Add Routes
+    ////////////////////////////////////////////////////////////
+
+    func addRoutes()
+    {
+        self.drop.get("alright", handler: alright)
+        self.drop.post("realmstatus", handler: realmstatus)
+        self.drop.get("apod", handler: apod)
+        self.drop.post("tabsontally", handler: tabsOnTally)
+        self.drop.post("overwatch", handler: overwatch)
+        self.drop.post("spoiler", handler: spoiler)
+    }
+
+    ////////////////////////////////////////////////////////////
     // MARK: - Routes
     ////////////////////////////////////////////////////////////
 

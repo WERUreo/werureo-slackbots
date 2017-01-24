@@ -563,5 +563,9 @@ public extension Date {
 	public init(unixTimestamp: Double) {
 		self.init(timeIntervalSince1970: unixTimestamp)
 	}
-	
+
+    public static func fromTimestamp(_ timestamp: Int) -> Date {
+        return Date(timeIntervalSince1970: TimeInterval(timestamp))
+    }
+
 }
