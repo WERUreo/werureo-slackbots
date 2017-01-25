@@ -60,7 +60,7 @@ final class SunRailController
     func schedule(request: Request, station: Station, train: Train) throws -> ResponseRepresentable
     {
         let departure = try Schedule.query().filter("station_id", station.id!).filter("train_id", train.id!).first()
-        return departure?.arrivalTime ?? "???"
+        return departure?.arrivalTime ?? "????"
     }
 
     ////////////////////////////////////////////////////////////
