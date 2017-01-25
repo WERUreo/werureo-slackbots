@@ -36,6 +36,7 @@ final class SunRailController
         self.drop.get("stations", handler: stations)
         self.drop.get("trains", handler: trains)
         self.drop.get("schedule", Station.self, Train.self, handler: schedule)
+        self.drop.post("sunrail", handler: sunrail)
     }
 
     ////////////////////////////////////////////////////////////
@@ -66,6 +67,48 @@ final class SunRailController
 
     func sunrail(request: Request) throws -> ResponseRepresentable
     {
-        return ""
+        guard let slackRequest = try? SlackRequest(node: request.formURLEncoded) else
+        {
+            return "This endpoint is intended for use with Slack."
+        }
+
+        guard let text = slackRequest.text else
+        {
+            return "Usage: /sunrail [stations|next|help]"
+        }
+
+        let parameters = text.components(separatedBy: " ")
+
+        var payload = SlackPayload()
+
+        switch parameters[0]
+        {
+            case "stations":
+                let stations = try Station.query().all()
+
+                var locationText: String = ""
+                var slugText: String = ""
+                for station in stations
+                {
+                    locationText += "\(station.location)\n"
+                    slugText += "\(station.slug)\n"
+                }
+
+                let fields =
+                [
+                    AttachmentsField(title: "Station", value: locationText, isShort: true),
+                    AttachmentsField(title: "Slug", value: slugText, isShort: true)
+                ]
+
+                var attachment = Attachment()
+                attachment.fields = fields
+
+                payload.attachments = [attachment]
+                payload.responseType = .ephemeral
+            default:
+                return ""
+        }
+
+        return try JSON(node: payload)
     }
 }
