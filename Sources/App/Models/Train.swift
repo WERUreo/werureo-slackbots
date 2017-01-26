@@ -18,11 +18,19 @@ public enum Direction: String
 
 struct Train
 {
+    ////////////////////////////////////////////////////////////
+    // MARK: - Properties
+    ////////////////////////////////////////////////////////////
+
     var id: Node?
     var exists: Bool = false
 
     var number: Int
     var direction: String
+
+    ////////////////////////////////////////////////////////////
+    // MARK: - Initializers
+    ////////////////////////////////////////////////////////////
 
     init(number: Int, direction: Direction)
     {
@@ -32,6 +40,10 @@ struct Train
     }
 }
 
+////////////////////////////////////////////////////////////
+// MARK: - Model
+////////////////////////////////////////////////////////////
+
 extension Train : Model
 {
     init(node: Node, in context: Context) throws
@@ -40,6 +52,8 @@ extension Train : Model
         self.number     = try node.extract("number")
         self.direction  = try node.extract("direction")
     }
+
+    ////////////////////////////////////////////////////////////
 
     func makeNode(context: Context) throws -> Node
     {
@@ -51,6 +65,8 @@ extension Train : Model
         ])
     }
 
+    ////////////////////////////////////////////////////////////
+
     static func prepare(_ database: Database) throws
     {
         try database.create("trains")
@@ -61,11 +77,17 @@ extension Train : Model
         }
     }
 
+    ////////////////////////////////////////////////////////////
+
     static func revert(_ database: Database) throws
     {
         try database.delete("trains")
     }
 }
+
+////////////////////////////////////////////////////////////
+// MARK: - Helpers
+////////////////////////////////////////////////////////////
 
 extension Train
 {

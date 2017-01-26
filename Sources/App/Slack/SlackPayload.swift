@@ -38,6 +38,10 @@ struct SlackPayload
     }
 }
 
+////////////////////////////////////////////////////////////
+// MARK: - NodeRepresentable
+////////////////////////////////////////////////////////////
+
 extension SlackPayload : NodeRepresentable
 {
     func makeNode(context: Context) throws -> Node

@@ -12,12 +12,20 @@ import Fluent
 
 struct Station
 {
+    ////////////////////////////////////////////////////////////
+    // MARK: - Properties
+    ////////////////////////////////////////////////////////////
+
     var id: Node?
     var exists: Bool = false
 
     var slug: String
     var location: String
     var address: String
+
+    ////////////////////////////////////////////////////////////
+    // MARK: - Initializers
+    ////////////////////////////////////////////////////////////
 
     init(slug: String, location: String, address: String)
     {
@@ -28,6 +36,10 @@ struct Station
     }
 }
 
+////////////////////////////////////////////////////////////
+// MARK: - Model
+////////////////////////////////////////////////////////////
+
 extension Station : Model
 {
     init(node: Node, in context: Context) throws
@@ -37,6 +49,8 @@ extension Station : Model
         self.location   = try node.extract("location")
         self.address    = try node.extract("address")
     }
+
+    ////////////////////////////////////////////////////////////
 
     func makeNode(context: Context) throws -> Node
     {
@@ -49,6 +63,8 @@ extension Station : Model
             ])
     }
 
+    ////////////////////////////////////////////////////////////
+
     static func prepare(_ database: Database) throws
     {
         try database.create("stations")
@@ -60,11 +76,17 @@ extension Station : Model
         }
     }
 
+    ////////////////////////////////////////////////////////////
+
     static func revert(_ database: Database) throws
     {
         try database.delete("stations")
     }
 }
+
+////////////////////////////////////////////////////////////
+// MARK: - Helpers
+////////////////////////////////////////////////////////////
 
 extension Station
 {

@@ -256,8 +256,8 @@ final class SlackController
 
                     let fields =
                         [
-                            AttachmentsField(title: "Title", value: "Value", isShort: true),
-                            AttachmentsField(title: "Title 2", value: "Value 2", isShort: true)
+                            AttachmentField(title: "Title", value: "Value", isShort: true),
+                            AttachmentField(title: "Title 2", value: "Value 2", isShort: true)
                     ]
 
                     var attachments = Attachment()

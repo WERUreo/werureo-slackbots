@@ -177,12 +177,12 @@ final class WeatherController
 
                     let fields =
                     [
-                        AttachmentsField(title: "High", value: highTemp, isShort: true),
-                        AttachmentsField(title: "Low", value: lowTemp, isShort: true),
-                        AttachmentsField(title: "Wind", value: wind, isShort: true),
-                        AttachmentsField(title: "Feels Like", value: feelsLikeTemp, isShort: true),
-                        AttachmentsField(title: "Chance of Precipitation", value: precipChance, isShort: true),
-                        AttachmentsField(title: "Dew Point", value: dewPointTemp, isShort: true)
+                        AttachmentField(title: "High", value: highTemp, isShort: true),
+                        AttachmentField(title: "Low", value: lowTemp, isShort: true),
+                        AttachmentField(title: "Wind", value: wind, isShort: true),
+                        AttachmentField(title: "Feels Like", value: feelsLikeTemp, isShort: true),
+                        AttachmentField(title: "Chance of Precipitation", value: precipChance, isShort: true),
+                        AttachmentField(title: "Dew Point", value: dewPointTemp, isShort: true)
                     ]
                     
                     var attachment = Attachment()

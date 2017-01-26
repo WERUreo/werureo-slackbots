@@ -11,6 +11,10 @@ import Vapor
 
 struct Schedule
 {
+    ////////////////////////////////////////////////////////////
+    // MARK: - Properties
+    ////////////////////////////////////////////////////////////
+
     static var entity = "station_train"
 
     var id: Node?
@@ -18,16 +22,24 @@ struct Schedule
 
     var trainId: Node
     var stationId: Node
-    var arrivalTime: String
+    var departureTime: String
 
-    init(trainId: Node, stationId: Node, arrivalTime: String)
+    ////////////////////////////////////////////////////////////
+    // MARK: - Initializers
+    ////////////////////////////////////////////////////////////
+
+    init(trainId: Node, stationId: Node, departureTime: String)
     {
         self.id = nil
         self.trainId = trainId
         self.stationId = stationId
-        self.arrivalTime = arrivalTime
+        self.departureTime = departureTime
     }
 }
+
+////////////////////////////////////////////////////////////
+// MARK: - Model
+////////////////////////////////////////////////////////////
 
 extension Schedule : Model
 {
@@ -36,19 +48,23 @@ extension Schedule : Model
         self.id             = try node.extract("id")
         self.trainId        = try node.extract("train_id")
         self.stationId      = try node.extract("station_id")
-        self.arrivalTime    = try node.extract("arrival_time")
+        self.departureTime  = try node.extract("departure_time")
     }
+
+    ////////////////////////////////////////////////////////////
 
     func makeNode(context: Context) throws -> Node
     {
         return try Node(node:
             [
-                "id"            : self.id,
-                "train_id"      : self.trainId,
-                "station_id"    : self.stationId,
-                "arrival_time"  : self.arrivalTime
+                "id"                : self.id,
+                "train_id"          : self.trainId,
+                "station_id"        : self.stationId,
+                "departure_time"    : self.departureTime
             ])
     }
+
+    ////////////////////////////////////////////////////////////
 
     static func prepare(_ database: Database) throws
     {
@@ -57,10 +73,12 @@ extension Schedule : Model
             train_station.id()
             train_station.int("train_id")
             train_station.int("station_id")
-            train_station.string("arrival_time")
+            train_station.string("departure_time")
         }
     }
 
+    ////////////////////////////////////////////////////////////
+    
     static func revert(_ database: Database) throws
     {
         try database.delete("station_train")

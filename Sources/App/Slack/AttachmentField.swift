@@ -1,5 +1,5 @@
 //
-//  AttachmentsField.swift
+//  AttachmentField.swift
 //  slack-commands
 //
 //  Created by Keli'i Martin on 11/23/16.
@@ -8,7 +8,7 @@
 
 import Node
 
-struct AttachmentsField
+struct AttachmentField
 {
     ////////////////////////////////////////////////////////////
     // MARK: - Properties
@@ -34,7 +34,7 @@ struct AttachmentsField
 // MARK: - NodeRepresentable
 ////////////////////////////////////////////////////////////
 
-extension AttachmentsField : NodeRepresentable
+extension AttachmentField : NodeRepresentable
 {
     func makeNode(context: Context) throws -> Node
     {

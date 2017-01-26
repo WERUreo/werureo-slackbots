@@ -88,7 +88,7 @@ final class SeatGeekController
         }
         else
         {
-            var fields = [AttachmentsField]()
+            var fields = [AttachmentField]()
 
             for event in events
             {
@@ -100,7 +100,7 @@ final class SeatGeekController
                     time = Date(iso8601String: timeString).timeString(ofStyle: .short)
                 }
 
-                let field = AttachmentsField(title: title,
+                let field = AttachmentField(title: title,
                                              value: "\(venue) - \(time)",
                                              isShort: false)
                 fields.append(field)
@@ -108,7 +108,7 @@ final class SeatGeekController
 
             if !inChannel
             {
-                let field = AttachmentsField(title: "",
+                let field = AttachmentField(title: "",
                                              value: "To share this information in the current channel, type `/parking share`",
                                              isShort: false)
                 fields.append(field)

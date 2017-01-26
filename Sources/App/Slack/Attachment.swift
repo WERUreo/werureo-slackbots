@@ -23,7 +23,7 @@ struct Attachment
     var title: String?
     var titleLink: String?
     var text: String?
-    var fields: [AttachmentsField]?
+    var fields: [AttachmentField]?
     var imageURL: String?
     var thumbURL: String?
     var footer: String?
@@ -39,43 +39,6 @@ struct Attachment
     {
         // this empty initializer is provided in the case you don't want to include all parameters when initializing
     }
-
-    ////////////////////////////////////////////////////////////
-    
-//    init(fallback: String?,
-//         color: String?,
-//         pretext: String?,
-//         authorName: String?,
-//         authorLink: String?,
-//         authorIcon: String?,
-//         title: String?,
-//         titleLink: String?,
-//         text: String?,
-//         fields: [AttachmentsField]?,
-//         imageURL: String?,
-//         thumbURL: String?,
-//         footer: String?,
-//         footerIcon: String?,
-//         ts: UInt64?,
-//         markdown: [String]?)
-//    {
-//        self.fallback = fallback
-//        self.color = color
-//        self.pretext = pretext
-//        self.authorName = authorName
-//        self.authorLink = authorLink
-//        self.authorIcon = authorIcon
-//        self.title = title
-//        self.titleLink = titleLink
-//        self.text = text
-//        self.fields = fields
-//        self.imageURL = imageURL
-//        self.thumbURL = thumbURL
-//        self.footer = footer
-//        self.footerIcon = footerIcon
-//        self.ts = ts
-//        self.markdown = markdown
-//    }
 }
 
 ////////////////////////////////////////////////////////////
