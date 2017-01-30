@@ -121,6 +121,14 @@ public extension Date {
 	public var isInToday: Bool {
 		return self.day == Date().day && self.month == Date().month && self.year == Date().year
 	}
+
+    public var isWeekend: Bool {
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone(identifier: "America/New_York")!
+        formatter.dateFormat = "EEEE"
+        let day = formatter.string(from: self)
+        return day == "Saturday" || day == "Sunday"
+    }
 	
 	/// SwifterSwift: ISO8601 string of format (yyyy-MM-dd'T'HH:mm:ss.SSS) from date.
 	public var iso8601String: String {
@@ -191,7 +199,12 @@ public extension Date {
 	
 	/// SwifterSwift: Time zone used by system.
 	public var timeZone: TimeZone {
-		return self.calendar.timeZone
+        get {
+            return self.calendar.timeZone
+        }
+        set {
+            self = Date(calendar: calendar, timeZone: newValue, era: era, year: year, month: month, day: day, hour: hour, minute: minute, second: second, nanosecond: nanosecond)
+        }
 	}
 	
 	/// SwifterSwift: UNIX timestamp from date.

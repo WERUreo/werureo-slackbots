@@ -95,4 +95,11 @@ extension Station
         let trains: Siblings<Train> = try siblings()
         return try trains.all()
     }
+
+    ////////////////////////////////////////////////////////////
+
+    static func stationName(id: Node) throws -> String
+    {
+        return try Station.query().filter("id", id).first()?.location ?? "No location"
+    }
 }

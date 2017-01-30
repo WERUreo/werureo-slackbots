@@ -74,23 +74,17 @@ final class SunRailController
             return "Invalid station"
         }
 
-        var departureTimes = [String]()
+        var departureTimes: String = ""
 
         for train in trains
         {
             if let schedule = try Schedule.query().filter("train_id", train.id!).filter("station_id", station.id!).first()
             {
-                departureTimes.append(schedule.departureTime)
+                departureTimes += "\(schedule.departureTime)\n"
             }
         }
 
-        var allTimes: String = ""
-        for time in departureTimes
-        {
-            allTimes += "\(time)\n"
-        }
-
-        return allTimes
+        return departureTimes
     }
 
     ////////////////////////////////////////////////////////////
@@ -105,6 +99,8 @@ final class SunRailController
 
     func sunrail(request: Request) throws -> ResponseRepresentable
     {
+        let usageString = "Usage: /sunrail [stations|next|help]"
+
         guard let slackRequest = try? SlackRequest(node: request.formURLEncoded) else
         {
             return "This endpoint is intended for use with Slack."
@@ -112,7 +108,7 @@ final class SunRailController
 
         guard let text = slackRequest.text else
         {
-            return "Usage: /sunrail [stations|next|help]"
+            return usageString
         }
 
         let parameters = text.components(separatedBy: " ")
@@ -135,17 +131,69 @@ final class SunRailController
             let fields =
             [
                 AttachmentField(title: "Station", value: locationText, isShort: true),
-                AttachmentField(title: "Slug", value: slugText, isShort: true)
+                AttachmentField(title: "Identifier", value: slugText, isShort: true)
             ]
 
             var attachment = Attachment()
             attachment.fields = fields
 
             payload.attachments = [attachment]
-            payload.responseType = .ephemeral
+
+        case "next":
+            if parameters.count < 2
+            {
+                payload.text = "Usage: `/sunrail next {stationIdentifier} {direction}`\nTo see a list of station identifiers, type `/sunrail stations`.\nValid directions are `NB` and `SB`"
+                break
+            }
+
+            guard let station = try Station.query().filter("slug", parameters[1].lowercased()).first() else
+            {
+                payload.text = "\(parameters[1]) is not a valid station identifier.  Type `/sunrail stations` to see a list of station identifiers."
+                return try JSON(node: payload)
+            }
+
+            let direction = parameters[2].uppercased()
+            print(direction)
+            if direction != "NB" && direction != "SB"
+            {
+                payload.text = "\(parameters[2]) is not a valid direction.  Please use `NB` for northbound or `SB` for southbound"
+                break
+            }
+
+            let trains = (direction == "NB") ? try Train.northbound() : try Train.southbound()
+            let departureTimes = try Schedule.query().filter("station_id", station.id!).filter("train_id", .in, trains.map { $0.id! }).all()
+
+            let currentDate = Date()
+
+            // If the current date is a Saturday or Sunday, the SunRail isn't running, so we should immediately return
+            if currentDate.isWeekend
+            {
+                payload.text = "SunRail does not run on the weekends."
+                return try JSON(node: payload)
+            }
+
+            var nearestTime: String = ""
+
+            for time in departureTimes
+            {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "MMM dd, yyyy"
+                formatter.timeZone = TimeZone(identifier: "America/New_York")!
+                let dateString = formatter.string(from: currentDate)
+
+                formatter.dateFormat = "MMM dd, yyyy, h:mm a"
+                let scheduleTime = formatter.date(from: "\(dateString), \(time.departureTime)")
+                if scheduleTime! > currentDate
+                {
+                    nearestTime = time.departureTime
+                    break
+                }
+            }
+
+            payload.text = "The next \(direction == "NB" ? "northbound" : "southbound") train will depart from \(station.location) at \(nearestTime)."
+
         default:
-            payload.responseType = .ephemeral
-            payload.text = "Usage: "
+            payload.text = usageString
         }
 
         return try JSON(node: payload)

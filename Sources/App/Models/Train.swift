@@ -91,14 +91,14 @@ extension Train : Model
 
 extension Train
 {
-    func northbound() throws -> [Train]
+    static func northbound() throws -> [Train]
     {
         return try Train.query().filter("direction", "NB").all()
     }
 
     ////////////////////////////////////////////////////////////
 
-    func southbound() throws -> [Train]
+    static func southbound() throws -> [Train]
     {
         return try Train.query().filter("direction", "SB").all()
     }
