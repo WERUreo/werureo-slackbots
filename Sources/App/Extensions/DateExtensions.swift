@@ -445,10 +445,13 @@ public extension Date {
 	}
 
     /// Adding an overloaded func dateString() that will return date string formatted as 'YYYY-MM-dd'
-    func dateString(in timezone: TimeZone? = TimeZone.current) -> String
+    func dateString(in timezone: TimeZone? = TimeZone.current, with format: String? = nil) -> String
     {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "YYYY-MM-dd"
+        if let dateFormat = format
+        {
+            dateFormatter.dateFormat = dateFormat
+        }
         dateFormatter.timeZone = timezone
         return dateFormatter.string(from: self)
     }
@@ -512,6 +515,12 @@ public extension Date {
 		return dateFormatter.string(from: self)
 	}
 
+    public static func date(from dateString: String) -> Date
+    {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM dd, yyyy, h:mm a"
+        return formatter.date(from: dateString) ?? Date()
+    }
 }
 
 

@@ -14,6 +14,19 @@ public enum Direction: String
 {
     case northbound = "NB"
     case southbound = "SB"
+
+    ////////////////////////////////////////////////////////////
+
+    func toString() -> String
+    {
+        switch self
+        {
+        case .northbound:
+            return "northbound"
+        case .southbound:
+            return "southbound"
+        }
+    }
 }
 
 struct Train

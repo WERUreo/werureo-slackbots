@@ -99,7 +99,7 @@ final class SunRailController
 
     func sunrail(request: Request) throws -> ResponseRepresentable
     {
-        let usageString = "Usage: /sunrail [stations|next|help]"
+        let usageString = "Usage: `/sunrail [stations|next|help]`\n`/sunrail stations` - displays a list of station identifiers.\n`/sunrail next {station-identifier} {NB|SB}` - displays the next departure time for the given station in the given direction.\n`/sunrail help` - displays this help message."
 
         guard let slackRequest = try? SlackRequest(node: request.formURLEncoded) else
         {
@@ -152,15 +152,20 @@ final class SunRailController
                 return try JSON(node: payload)
             }
 
-            let direction = parameters[2].uppercased()
-            print(direction)
-            if direction != "NB" && direction != "SB"
+            guard let direction = Direction(rawValue: parameters[2].uppercased()) else
             {
                 payload.text = "\(parameters[2]) is not a valid direction.  Please use `NB` for northbound or `SB` for southbound"
-                break
+                return try JSON(node: payload)
             }
 
-            let trains = (direction == "NB") ? try Train.northbound() : try Train.southbound()
+            // Need to take care of the special cases of requesting a southbound departure time from Sand Lake Road or a northbound departure time from DeBary, as these are "end of the line" stations
+            if ((station.slug == "debary" && direction == .northbound) || (station.slug == "sand-lake-road" && direction == .southbound))
+            {
+                payload.text = "There are no \(direction.toString()) departing from the \(station.location) station, as this is the end of the \(direction.toString()) line."
+                return try JSON(node: payload)
+            }
+
+            let trains = (direction == .northbound) ? try Train.northbound() : try Train.southbound()
             let departureTimes = try Schedule.query().filter("station_id", station.id!).filter("train_id", .in, trains.map { $0.id! }).all()
 
             let currentDate = Date()
@@ -174,23 +179,26 @@ final class SunRailController
 
             var nearestTime: String = ""
 
+            let dateString = currentDate.dateString(in: TimeZone(identifier: "America/New_York")!, with: "MMM dd, yyyy")
+
             for time in departureTimes
             {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "MMM dd, yyyy"
-                formatter.timeZone = TimeZone(identifier: "America/New_York")!
-                let dateString = formatter.string(from: currentDate)
-
-                formatter.dateFormat = "MMM dd, yyyy, h:mm a"
-                let scheduleTime = formatter.date(from: "\(dateString), \(time.departureTime)")
-                if scheduleTime! > currentDate
+                let scheduleTime = Date.date(from: "\(dateString), \(time.departureTime)")
+                if scheduleTime > currentDate
                 {
                     nearestTime = time.departureTime
                     break
                 }
             }
 
-            payload.text = "The next \(direction == "NB" ? "northbound" : "southbound") train will depart from \(station.location) at \(nearestTime)."
+            if nearestTime == ""
+            {
+                payload.text = "There are no more \(direction.toString()) trains departing from \(station.location)."
+            }
+            else
+            {
+                payload.text = "The next \(direction.toString()) train will depart from \(station.location) at \(nearestTime)."
+            }
 
         default:
             payload.text = usageString
