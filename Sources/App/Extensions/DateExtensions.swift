@@ -519,6 +519,7 @@ public extension Date {
     {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM dd, yyyy, h:mm a"
+        formatter.timeZone = TimeZone(identifier: "America/New_York")!
         return formatter.date(from: dateString) ?? Date()
     }
 }
