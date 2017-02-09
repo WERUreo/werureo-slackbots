@@ -64,7 +64,7 @@ final class SunRailController
 
     func listTrainTimes(request: Request, direction: String, station: String) throws -> ResponseRepresentable
     {
-        guard let trains = try? Train.query().filter("direction", direction).all() else
+        guard let trains = try? Train.query().filter("direction", direction.uppercased()).all() else
         {
             return "No trains found"
         }
@@ -140,42 +140,37 @@ final class SunRailController
             payload.attachments = [attachment]
 
         case "next":
-            if parameters.count < 2
-            {
-                payload.text = "Usage: `/sunrail next {stationIdentifier} {direction}`\nTo see a list of station identifiers, type `/sunrail stations`.\nValid directions are `NB` and `SB`"
-                break
-            }
-
-            guard let station = try Station.query().filter("slug", parameters[1].lowercased()).first() else
-            {
-                payload.text = "\(parameters[1]) is not a valid station identifier.  Type `/sunrail stations` to see a list of station identifiers."
-                return try JSON(node: payload)
-            }
-
-            guard let direction = Direction(rawValue: parameters[2].uppercased()) else
-            {
-                payload.text = "\(parameters[2]) is not a valid direction.  Please use `NB` for northbound or `SB` for southbound"
-                return try JSON(node: payload)
-            }
-
-            // Need to take care of the special cases of requesting a southbound departure time from Sand Lake Road or a northbound departure time from DeBary, as these are "end of the line" stations
-            if ((station.slug == "debary" && direction == .northbound) || (station.slug == "sand-lake-road" && direction == .southbound))
-            {
-                payload.text = "There are no \(direction.toString()) departing from the \(station.location) station, as this is the end of the \(direction.toString()) line."
-                return try JSON(node: payload)
-            }
-
-            let trains = (direction == .northbound) ? try Train.northbound() : try Train.southbound()
-            let departureTimes = try Schedule.query().filter("station_id", station.id!).filter("train_id", .in, trains.map { $0.id! }).all()
-
             let currentDate = Date()
 
             // If the current date is a Saturday or Sunday, the SunRail isn't running, so we should immediately return
             if currentDate.isWeekend
             {
-                payload.text = "SunRail does not run on the weekends."
-                return try JSON(node: payload)
+                return "SunRail does not run on the weekends."
             }
+
+            if parameters.count < 2
+            {
+                return usageString
+            }
+
+            guard let station = try Station.query().filter("slug", parameters[1].lowercased()).first() else
+            {
+                return "\(parameters[1]) is not a valid station identifier.  Type `/sunrail stations` to see a list of station identifiers."
+            }
+
+            guard let direction = Direction(rawValue: parameters[2].uppercased()) else
+            {
+                return "\(parameters[2]) is not a valid direction.  Please use `NB` for northbound or `SB` for southbound"
+            }
+
+            // Need to take care of the special cases of requesting a southbound departure time from Sand Lake Road or a northbound departure time from DeBary, as these are "end of the line" stations
+            if ((station.slug == "debary" && direction == .northbound) || (station.slug == "sand-lake-road" && direction == .southbound))
+            {
+                return "There are no \(direction.toString()) trains departing from the \(station.location) station, as this is the end of the \(direction.toString()) line."
+            }
+
+            let trains = (direction == .northbound) ? try Train.northbound() : try Train.southbound()
+            let departureTimes = try Schedule.query().filter("station_id", station.id!).filter("train_id", .in, trains.map { $0.id! }).all()
 
             var nearestTime: String = ""
 
