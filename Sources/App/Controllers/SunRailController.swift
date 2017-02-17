@@ -164,7 +164,8 @@ final class SunRailController
             }
 
             // Need to take care of the special cases of requesting a southbound departure time from Sand Lake Road or a northbound departure time from DeBary, as these are "end of the line" stations
-            if ((station.slug == "debary" && direction == .northbound) || (station.slug == "sand-lake-road" && direction == .southbound))
+            if ((station.slug == "debary" && direction == .northbound) ||
+                (station.slug == "sand-lake-road" && direction == .southbound))
             {
                 return "There are no \(direction.toString()) trains departing from the \(station.location) station, as this is the end of the \(direction.toString()) line."
             }

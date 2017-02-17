@@ -19,4 +19,7 @@ weather.addRoutes()
 let sunrail = SunRailController(drop: drop)
 sunrail.addRoutes()
 
+let meetup = MeetupController(drop: drop)
+meetup.addRoutes()
+
 drop.run()
