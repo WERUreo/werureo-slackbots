@@ -81,7 +81,7 @@ final class MeetupController
                 {
                     let venueName = venue?["name"]?.string ?? ""
                     let venueAddr1 = venue?["address_1"]?.string ?? ""
-                    let venueAddr2 = venue?["address_2"]?.string
+                    let venueAddr2 = venue?["address_2"]?.string ?? ""
                     let venueCity = venue?["city"]?.string ?? ""
                     let venueState = venue?["state"]?.string ?? ""
                     let venueZip = venue?["zip"]?.string ?? ""
