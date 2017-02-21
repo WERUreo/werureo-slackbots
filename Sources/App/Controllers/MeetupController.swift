@@ -61,7 +61,6 @@ final class MeetupController
                 let link = nextEvent["link"]?.string
                 let description = nextEvent["description"]?.string ?? ""
                 let howToFindUs = nextEvent["how_to_find_us"]?.string
-                let venue = try? nextEvent["venue"]?.makeJSON()
 
                 var attachment = Attachment()
                 attachment.color = "#ed8323"
@@ -71,20 +70,18 @@ final class MeetupController
                 // construct date string
                 let dateTime = Date(timeIntervalSince1970: TimeInterval(time / 1000)).dateString(in: TimeZone(identifier: "America/New_York"), with: "EEEE, MMM d, yyyy h:mm a")
                 attachment.text = "\(dateTime)\n\(self.markdownifyString(description))"
-
-                print(self.markdownifyString(description))
                 attachment.markdown = ["fields", "text"]
 
                 var fields = [AttachmentField]()
 
-                if let venue = venue
+                if let venue = nextEvent["venue"]
                 {
-                    let venueName = venue?["name"]?.string ?? ""
-                    let venueAddr1 = venue?["address_1"]?.string ?? ""
-                    let venueAddr2 = venue?["address_2"]?.string ?? ""
-                    let venueCity = venue?["city"]?.string ?? ""
-                    let venueState = venue?["state"]?.string ?? ""
-                    let venueZip = venue?["zip"]?.string ?? ""
+                    let venueName = venue["name"]?.string ?? ""
+                    let venueAddr1 = venue["address_1"]?.string ?? ""
+                    let venueAddr2 = venue["address_2"]?.string ?? ""
+                    let venueCity = venue["city"]?.string ?? ""
+                    let venueState = venue["state"]?.string ?? ""
+                    let venueZip = venue["zip"]?.string ?? ""
 
                     let venueString = "\(venueName)\n\(venueAddr1)\n\(venueAddr2)\n\(venueCity), \(venueState) \(venueZip)"
 
@@ -92,8 +89,8 @@ final class MeetupController
                     fields.append(venueField)
 
                     // create map image url
-                    if let lat = venue?["lat"]?.double,
-                        let long = venue?["lon"]?.double,
+                    if let lat = venue["lat"]?.double,
+                        let long = venue["lon"]?.double,
                         let googlekey = self.drop.config["keys", "google"]?.string
                     {
                         let imageURL = "https://maps.googleapis.com/maps/api/staticmap?size=500x400&zoom=17&markers=color:red%7C\(lat),\(long)&key=\(googlekey)"
