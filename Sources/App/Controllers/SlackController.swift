@@ -234,7 +234,7 @@ final class SlackController
 
         if parameters[0] == "#profile"
         {
-            DispatchQueue.global(qos: .userInitiated).async
+            DispatchQueue.global(qos: .utility).async
             {
                 let startTime = Date()
 
