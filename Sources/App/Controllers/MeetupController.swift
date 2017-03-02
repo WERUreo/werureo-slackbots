@@ -49,11 +49,16 @@ final class MeetupController
             return "This endpoint is intended for use with Slack."
         }
 
+        guard let apikey = self.drop.config["keys", "meetup"]?.string else
+        {
+            return "Invalid Meetup API key"
+        }
+
         DispatchQueue.global(qos: .userInitiated).async
         {
             var payload = SlackPayload()
 
-            let apiResponse = try? self.drop.client.get("\(self.baseURI)/Code-For-Orlando/events")
+            let apiResponse = try? self.drop.client.get("\(self.baseURI)/Code-For-Orlando/events", query: ["key" : apikey, "sign" : true])
             if let nextEvent = apiResponse?.json?.pathIndexableArray?.first
             {
                 let eventName = nextEvent["name"]?.string ?? "No event name"
