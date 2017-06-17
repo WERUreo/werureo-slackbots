@@ -36,6 +36,7 @@ final class SlackController
     func addRoutes()
     {
         self.drop.get("alright", handler: alright)
+        self.drop.get("uhh", handler:uhh)
         self.drop.post("realmstatus", handler: realmstatus)
         self.drop.get("apod", handler: apod)
         self.drop.post("tabsontally", handler: tabsOnTally)
@@ -58,6 +59,22 @@ final class SlackController
                 "attachments": JSON([try attachments.makeNode()])
             ])
         
+        return payload
+    }
+
+    ////////////////////////////////////////////////////////////
+
+    func uhh(request: Request) throws -> ResponseRepresentable
+    {
+        var attachment = Attachment()
+        attachment.imageURL = "https://s3.amazonaws.com/werureo-random/uhh.png"
+
+        let payload = try JSON(node:
+            [
+                "response_type": "in_channel",
+                "attachments": JSON([try attachment.makeNode()])
+            ])
+
         return payload
     }
 
