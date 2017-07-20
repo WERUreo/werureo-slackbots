@@ -67,7 +67,7 @@ final class SlackController
     func uhh(request: Request) throws -> ResponseRepresentable
     {
         var attachment = Attachment()
-        attachment.imageURL = "https://s3.amazonaws.com/werureo-random/uhh.png"
+        attachment.imageURL = "https://s3.amazonaws.com/werureo-random/uhh.gif"
 
         let payload = try JSON(node:
             [
